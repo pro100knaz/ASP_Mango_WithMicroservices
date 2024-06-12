@@ -3,8 +3,8 @@ using Mango.Web.Models.DTO;
 
 namespace Mango.Web.Services.IService
 {
-	public interface IBaseService
+	public interface IBaseService<T>
 	{
-		Task<ResponseDto> SendAsync(RequestDto requestDto);
+		Task<ResponseDto<T>> SendAsync(RequestDto requestDto);
 	}
 }

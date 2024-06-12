@@ -8,7 +8,7 @@ using System.Text.Json.Serialization;
 
 namespace Mango.Web.Services
 {
-	public class BaseService : IBaseService
+	public class BaseService<T> : IBaseService<T>
 	{
 		private readonly IHttpClientFactory httpClientFactory;
 
@@ -16,7 +16,7 @@ namespace Mango.Web.Services
         {
 			this.httpClientFactory = httpClientFactory;
 		}
-        public async Task<ResponseDto> SendAsync(RequestDto requestDto)
+        public async Task<ResponseDto<T>> SendAsync(RequestDto requestDto)
 		{
 			HttpClient client = httpClientFactory.CreateClient("MangoAPI");
 			HttpRequestMessage message = new();
@@ -56,29 +56,28 @@ namespace Mango.Web.Services
 
 
 			apiResponse = await client.SendAsync(message);
-
-
+			var x = new ResponseDto<T>();
 			try
 			{
 	switch (apiResponse.StatusCode)
 			{
 				case System.Net.HttpStatusCode.NotFound:
-					return new ResponseDto { IsSuccess = false, Message = "Not Found" };
+					return new ResponseDto<T> { IsSuccess = false, Message = "Not Found" };
 				case System.Net.HttpStatusCode.Forbidden:
-					return new ResponseDto { IsSuccess = false, Message = "Acces Denied" };
+					return new ResponseDto<T> { IsSuccess = false, Message = "Acces Denied" };
 				case System.Net.HttpStatusCode.Unauthorized:
-					return new ResponseDto { IsSuccess = false, Message = "Unauthorized" };
+					return new ResponseDto<T> { IsSuccess = false, Message = "Unauthorized" };
 				case System.Net.HttpStatusCode.InternalServerError:
-					return new ResponseDto { IsSuccess = false, Message = "Internal Server Error" };
+					return new ResponseDto<T> { IsSuccess = false, Message = "Internal Server Error" };
 				default: 
 				var apiContent = await apiResponse.Content.ReadAsStringAsync();
-					var apiResponseDto = JsonSerializer.Deserialize<ResponseDto>(apiContent);
+					var apiResponseDto = JsonSerializer.Deserialize<ResponseDto<T>>(apiContent);
 					return apiResponseDto;
 			}
 			}
 			catch (Exception ex)
 			{
-				var Dto = new ResponseDto()
+				var Dto = new ResponseDto<T>()
 				{
 					Message = ex.Message,
 					IsSuccess = false

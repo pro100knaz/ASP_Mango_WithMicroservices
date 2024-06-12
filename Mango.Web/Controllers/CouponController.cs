@@ -18,7 +18,7 @@ namespace Mango.Web.Controllers
 		{
 
 			List<CouponDto>? list = new();
-			ResponseDto? response = await couponService.GetAllCouponseAsync();
+			ResponseDto<List<CouponDto>>? response = await couponService.GetAllCouponseAsync();
 
 			if(response != null && response.IsSuccess)
 			{

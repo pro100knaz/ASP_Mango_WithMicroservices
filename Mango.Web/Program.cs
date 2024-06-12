@@ -1,3 +1,4 @@
+using Mango.Web.Models;
 using Mango.Web.Services;
 using Mango.Web.Services.IService;
 using Mango.Web.Utility;
@@ -14,7 +15,8 @@ builder.Services.AddHttpClient<ICouponService, CouponService>();
 
 
 builder.Services.AddScoped<ICouponService, CouponService>();
-builder.Services.AddScoped<IBaseService, BaseService>();
+builder.Services.AddScoped<IBaseService<CouponDto>, BaseService<CouponDto>>();
+builder.Services.AddScoped<IBaseService<List<CouponDto>>, BaseService<List<CouponDto>>>();
 
 
 SD.CouponApiBase = builder.Configuration["ServiceUrls:CouponAPI"]!;

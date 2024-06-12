@@ -7,13 +7,15 @@ namespace Mango.Web.Services
 {
     public class CouponService : ICouponService
     {
-		private readonly IBaseService baseService;
+		private readonly IBaseService<List<CouponDto>> baseServiceList;
+		private readonly IBaseService<CouponDto> baseService;
 
-		public CouponService(IBaseService baseService)
+		public CouponService(IBaseService<CouponDto> baseService, IBaseService<List<CouponDto>> baseServiceList)
         {
 			this.baseService = baseService;
+			this.baseServiceList = baseServiceList;
 		}
-        public async Task<ResponseDto?> CreateCouponsAsync(CouponDto couponDto)
+        public async Task<ResponseDto<CouponDto>?> CreateCouponsAsync(CouponDto couponDto)
         {
             return await baseService.SendAsync(new RequestDto()
             {
@@ -23,7 +25,7 @@ namespace Mango.Web.Services
             }) ;
 		}
 
-        public async Task<ResponseDto?> DeleteCouponseAsync(int id)
+        public async Task<ResponseDto<CouponDto>?> DeleteCouponseAsync(int id)
         {
 			return await baseService.SendAsync(new RequestDto()
 			{
@@ -32,16 +34,16 @@ namespace Mango.Web.Services
 			});
 		}
 
-        public async Task<ResponseDto?> GetAllCouponseAsync()
+        public async Task<ResponseDto<List<CouponDto>>?> GetAllCouponseAsync()
         {
-            return await baseService.SendAsync(new RequestDto()
+            return await baseServiceList.SendAsync(new RequestDto()
             {
                 ApiType = SD.ApiType.GET,
                 Url = SD.CouponApiBase + "/api/coupon"
             });
         }
 
-        public async Task<ResponseDto?> GetCouponeAsync(string couponeCode)
+        public async Task<ResponseDto<CouponDto>?> GetCouponeAsync(string couponeCode)
         {
             return await baseService.SendAsync(new RequestDto()
             {
@@ -50,7 +52,7 @@ namespace Mango.Web.Services
             }) ;
 		}
 
-        public async Task<ResponseDto?> GetCouponeByIdAsync(int id)
+        public async Task<ResponseDto<CouponDto>?> GetCouponeByIdAsync(int id)
         {
 			return await baseService.SendAsync(new RequestDto()
 			{
@@ -59,7 +61,7 @@ namespace Mango.Web.Services
 			});
 		}
 
-        public async Task<ResponseDto?> UpdateCuoponsAsync(CouponDto couponDto)
+        public async Task<ResponseDto<CouponDto>?> UpdateCuoponsAsync(CouponDto couponDto)
         {
 			return await baseService.SendAsync(new RequestDto()
 			{
