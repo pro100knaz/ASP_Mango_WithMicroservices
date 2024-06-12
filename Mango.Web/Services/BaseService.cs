@@ -1,14 +1,15 @@
 ﻿using Mango.Web.Models;
 using Mango.Web.Models.DTO;
 using Mango.Web.Services.IService;
+using System.Collections;
 using System.Net.Mime;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-
+using Newtonsoft.Json;
 namespace Mango.Web.Services
 {
-	public class BaseService<T> : IBaseService<T>
+	public class BaseService : IBaseService
 	{
 		private readonly IHttpClientFactory httpClientFactory;
 
@@ -16,7 +17,7 @@ namespace Mango.Web.Services
         {
 			this.httpClientFactory = httpClientFactory;
 		}
-        public async Task<ResponseDto<T>> SendAsync(RequestDto requestDto)
+        public async Task<ResponseDto> SendAsync(RequestDto requestDto)
 		{
 			HttpClient client = httpClientFactory.CreateClient("MangoAPI");
 			HttpRequestMessage message = new();
@@ -29,7 +30,7 @@ namespace Mango.Web.Services
 
 			if(requestDto.Data != null)
 			{
-				message.Content = new StringContent(JsonSerializer.Serialize(requestDto)/*, Encoding.UTF8, "application/json"*/);
+				message.Content = new StringContent(JsonConvert.SerializeObject(requestDto.Data), Encoding.UTF8, "application/json");
 			}
 
 			HttpResponseMessage? apiResponse =  null;
@@ -56,28 +57,37 @@ namespace Mango.Web.Services
 
 
 			apiResponse = await client.SendAsync(message);
-			var x = new ResponseDto<T>();
+
+
 			try
 			{
 	switch (apiResponse.StatusCode)
 			{
 				case System.Net.HttpStatusCode.NotFound:
-					return new ResponseDto<T> { IsSuccess = false, Message = "Not Found" };
+					return new ResponseDto { IsSuccess = false, Message = "Not Found" };
 				case System.Net.HttpStatusCode.Forbidden:
-					return new ResponseDto<T> { IsSuccess = false, Message = "Acces Denied" };
+					return new ResponseDto { IsSuccess = false, Message = "Acces Denied" };
 				case System.Net.HttpStatusCode.Unauthorized:
-					return new ResponseDto<T> { IsSuccess = false, Message = "Unauthorized" };
+					return new ResponseDto { IsSuccess = false, Message = "Unauthorized" };
 				case System.Net.HttpStatusCode.InternalServerError:
-					return new ResponseDto<T> { IsSuccess = false, Message = "Internal Server Error" };
-				default: 
-				var apiContent = await apiResponse.Content.ReadAsStringAsync();
-					var apiResponseDto = JsonSerializer.Deserialize<ResponseDto<T>>(apiContent);
+					return new ResponseDto { IsSuccess = false, Message = "Internal Server Error" };
+				default:
+
+						var apiContent = await apiResponse.Content.ReadAsStringAsync();
+						//byte[] byteArray = Encoding.UTF8.GetBytes(apiContent);
+
+						//ReadOnlySpan<byte> jsonReadOnlySpan = new ReadOnlySpan<byte>(byteArray);
+
+
+						//var reader = new Utf8JsonReader(apiContent);
+
+						var apiResponseDto = /*JsonSerializer.Deserialize<ResponseDto>(apiContent);*/ JsonConvert.DeserializeObject<ResponseDto>(apiContent);
 					return apiResponseDto;
 			}
 			}
 			catch (Exception ex)
 			{
-				var Dto = new ResponseDto<T>()
+				var Dto = new ResponseDto()
 				{
 					Message = ex.Message,
 					IsSuccess = false

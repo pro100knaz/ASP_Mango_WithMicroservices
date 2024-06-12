@@ -48,7 +48,7 @@ namespace Mango.Web.Services
             return await baseService.SendAsync(new RequestDto()
             {
                 ApiType = SD.ApiType.GET,
-                Url = SD.CouponApiBase + "/api/coupone/" + couponeCode
+                Url = SD.CouponApiBase + "/api/coupon/GetByCode/" + couponeCode
             }) ;
 		}
 
@@ -57,7 +57,7 @@ namespace Mango.Web.Services
 			return await baseService.SendAsync(new RequestDto()
 			{
 				ApiType = SD.ApiType.GET,
-				Url = SD.CouponApiBase + "/api/coupone/GetByCode/" + id
+				Url = SD.CouponApiBase + "/api/coupon/" + id
 			});
 		}
 
