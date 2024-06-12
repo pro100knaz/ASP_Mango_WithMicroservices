@@ -1,11 +1,12 @@
 ﻿using Mango.Web.Models;
 using Mango.Web.Models.DTO;
 using Mango.Web.Services.IService;
+using System.Collections;
 using System.Net.Mime;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-
+using Newtonsoft.Json;
 namespace Mango.Web.Services
 {
 	public class BaseService : IBaseService
@@ -29,7 +30,7 @@ namespace Mango.Web.Services
 
 			if(requestDto.Data != null)
 			{
-				message.Content = new StringContent(JsonSerializer.Serialize(requestDto)/*, Encoding.UTF8, "application/json"*/);
+				message.Content = new StringContent(JsonConvert.SerializeObject(requestDto.Data), Encoding.UTF8, "application/json");
 			}
 
 			HttpResponseMessage? apiResponse =  null;
@@ -70,9 +71,17 @@ namespace Mango.Web.Services
 					return new ResponseDto { IsSuccess = false, Message = "Unauthorized" };
 				case System.Net.HttpStatusCode.InternalServerError:
 					return new ResponseDto { IsSuccess = false, Message = "Internal Server Error" };
-				default: 
-				var apiContent = await apiResponse.Content.ReadAsStringAsync();
-					var apiResponseDto = JsonSerializer.Deserialize<ResponseDto>(apiContent);
+				default:
+
+						var apiContent = await apiResponse.Content.ReadAsStringAsync();
+						//byte[] byteArray = Encoding.UTF8.GetBytes(apiContent);
+
+						//ReadOnlySpan<byte> jsonReadOnlySpan = new ReadOnlySpan<byte>(byteArray);
+
+
+						//var reader = new Utf8JsonReader(apiContent);
+
+						var apiResponseDto = /*JsonSerializer.Deserialize<ResponseDto>(apiContent);*/ JsonConvert.DeserializeObject<ResponseDto>(apiContent);
 					return apiResponseDto;
 			}
 			}
