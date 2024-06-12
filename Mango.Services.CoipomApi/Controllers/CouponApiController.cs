@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Mango.Services.CouponApi.Controllers
 {
-	[Route("api/[controller]")]
+	[Route("api/coupon")]
 	[ApiController]
 	public class CouponApiController : ControllerBase //special api controller
 	{
@@ -114,6 +114,7 @@ namespace Mango.Services.CouponApi.Controllers
 		[HttpPut]
 		public ResponseDto Put([FromBody] CouponDto couponDto)
 		{
+
 			try
 			{
 				Coupon? coupon = mapper.Map<Coupon>(couponDto);
