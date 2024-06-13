@@ -2,46 +2,43 @@
 using Mango.Services.ProductApi.Data;
 using Mango.Services.ProductApi.Models;
 using Mango.Services.ProductApi.Models.DTO;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace Mango.Services.ProductApi.Controllers
 {
-	[Route("api/coupon")]
+	[Route("api/product")]
 	[ApiController]
-	[Authorize]
-	public class CouponApiController : ControllerBase //special api controller
+	public class ProductApiController : ControllerBase
 	{
 		private readonly IMapper mapper;
 		private readonly AppDbContext appDbContext;
 		private ResponseDto ResponseDto;
-		public CouponApiController(IMapper mapper ,AppDbContext appDbContext)
-        {
+		public ProductApiController(IMapper mapper, AppDbContext appDbContext)
+		{
 			this.mapper = mapper;
 			this.appDbContext = appDbContext;
 			ResponseDto = new ResponseDto();
 		}
 
-		
 		[HttpGet]
-		public ResponseDto Get() {
+		public ResponseDto Get()
+		{
 
 			try
 			{
-				IEnumerable<Coupon> objList = appDbContext.Coupons.ToList();
-				ResponseDto.Result = mapper.Map<IEnumerable<CouponDto>>(objList);
+				IEnumerable<Product> objList = appDbContext.Products.ToList();
+				ResponseDto.Result = mapper.Map<IEnumerable<ProductDto>>(objList);
 			}
 			catch (Exception ex)
 			{
 				ResponseDto.Message = ex.Message;
-				ResponseDto.IsSuccess = false; 
+				ResponseDto.IsSuccess = false;
 				//throw;
 			}
 
 			return ResponseDto;
-			
+
 		}
 
 		[HttpGet]
@@ -49,10 +46,10 @@ namespace Mango.Services.ProductApi.Controllers
 		public ResponseDto Get(int id)
 		{
 			try
-			{		
-				Coupon coupon = appDbContext.Coupons.First(c => c.CouponId == id); //can use FirstOrDefault cause it doesn't trow an exception
-				
-				ResponseDto.Result = mapper.Map<CouponDto>(coupon);
+			{
+				Product product = appDbContext.Products.First(c => c.ProductId == id); //can use FirstOrDefault cause it doesn't trow an exception
+
+				ResponseDto.Result = mapper.Map<ProductDto>(product);
 			}
 			catch (Exception ex)
 			{
@@ -64,19 +61,20 @@ namespace Mango.Services.ProductApi.Controllers
 			return ResponseDto;
 
 		}
-
-
 
 		[HttpGet]
-		[Route("GetByCode/{code}")]
-		public ResponseDto GetByCode(string code)
+		[Route("GetByName/{name}")]
+		public ResponseDto GetByName(string name)
 		{
 			try
 			{
-				Coupon? coupon = appDbContext.Coupons.FirstOrDefault(c => c.CouponCode.ToLower() == code.ToLower());
-				if(code == null)
-					ResponseDto.Result = false;
-				ResponseDto.Result = mapper.Map<CouponDto>(coupon);
+				var products = appDbContext.Products
+	.Where(c => c.Name.Contains(name))
+	.ToList();
+
+				if (products == null)
+					ResponseDto.IsSuccess = false;
+				ResponseDto.Result = mapper.Map<List<ProductDto>>(products);
 			}
 			catch (Exception ex)
 			{
@@ -84,24 +82,21 @@ namespace Mango.Services.ProductApi.Controllers
 				ResponseDto.IsSuccess = false;
 				//throw;
 			}
-
 			return ResponseDto;
-
 		}
-
 		[HttpPost]
-		[Authorize(Roles = "ADMIN")]
-		public ResponseDto Post([FromBody] CouponDto couponDto)
+		//[Authorize(Roles = "ADMIN")]
+		public ResponseDto Post([FromBody] ProductDto productDto)
 		{
 			try
 			{
-				Coupon? coupon = mapper.Map<Coupon>(couponDto);
-				if (coupon == null)
+				Product? product = mapper.Map<Product>(productDto);
+				if (product == null)
 					ResponseDto.Result = false;
-				appDbContext.Coupons.Add(coupon);
+				appDbContext.Products.Add(product);
 				appDbContext.SaveChanges();
 
-				ResponseDto.Result = mapper.Map<CouponDto>(coupon);
+				ResponseDto.Result = mapper.Map<ProductDto>(product);
 			}
 			catch (Exception ex)
 			{
@@ -115,19 +110,19 @@ namespace Mango.Services.ProductApi.Controllers
 		}
 
 		[HttpPut]
-		[Authorize(Roles = "ADMIN")]
-		public ResponseDto Put([FromBody] CouponDto couponDto)
+		//[Authorize(Roles = "ADMIN")]
+		public ResponseDto Put([FromBody] ProductDto productDto)
 		{
 
 			try
 			{
-				Coupon? coupon = mapper.Map<Coupon>(couponDto);
-				if (coupon == null)
+				Product? product = mapper.Map<Product>(productDto);
+				if (product == null)
 					ResponseDto.Result = false;
-				appDbContext.Coupons.Update(coupon);
+				appDbContext.Products.Update(product);
 				appDbContext.SaveChanges();
 
-				ResponseDto.Result = mapper.Map<CouponDto>(coupon);
+				ResponseDto.Result = mapper.Map<ProductDto>(product);
 			}
 			catch (Exception ex)
 			{
@@ -142,13 +137,13 @@ namespace Mango.Services.ProductApi.Controllers
 
 		[HttpDelete]
 		[Route("{id:int}")]
-		[Authorize(Roles = "ADMIN")]
+		//[Authorize(Roles = "ADMIN")]
 		public ResponseDto Delete(int id)
 		{
 			try
 			{
-				Coupon? coupon = appDbContext.Coupons.FirstOrDefault(c => c.CouponId == id); //can use FirstOrDefault cause it doesn't trow an exception
-				var x = appDbContext.Coupons.Remove(coupon);
+				Product? product = appDbContext.Products.FirstOrDefault(c => c.ProductId == id); //can use FirstOrDefault cause it doesn't trow an exception
+				var x = appDbContext.Products.Remove(product);
 				appDbContext.SaveChanges();
 			}
 			catch (Exception ex)

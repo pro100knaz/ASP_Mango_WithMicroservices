@@ -1,7 +1,7 @@
 using AutoMapper;
-using Mango.Services.CouponApi;
-using Mango.Services.CouponApi.Data;
-using Mango.Services.CouponApi.Extensions;
+using Mango.Services.ProductApi;
+using Mango.Services.ProductApi.Data;
+using Mango.Services.ProductApi.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;

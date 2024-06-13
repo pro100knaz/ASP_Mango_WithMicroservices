@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace Mango.Services.CouponApi.Migrations
+namespace Mango.Services.ProductApi.Migrations
 {
     /// <inheritdoc />
     public partial class initial : Migration

@@ -4,7 +4,7 @@
 
 #pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
 
-namespace Mango.Services.CouponApi.Migrations
+namespace Mango.Services.ProductApi.Migrations
 {
     /// <inheritdoc />
     public partial class CouponSeed : Migration
