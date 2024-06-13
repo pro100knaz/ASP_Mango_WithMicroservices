@@ -19,24 +19,22 @@ namespace Mango.Services.AuthAPI.Controllers
             responseDto = new();
         }
 
-        [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody]RegistrationRequestDto model)
-        {
-            var errorMessage = await authService.Register(model);
-            if(string.IsNullOrEmpty(errorMessage))
-            {
-                 return Ok(responseDto);
-            }
-            else
-            {
-                responseDto.Message = errorMessage;
-                responseDto.IsSuccess = false; 
-                return BadRequest(responseDto);
-            }
+		[HttpPost("register")]
+		public async Task<IActionResult> Register([FromBody] RegistrationRequestDto model)
+		{
 
-        }
+			var errorMessage = await authService.Register(model);
+			if (!string.IsNullOrEmpty(errorMessage))
+			{
+				responseDto.IsSuccess = false;
+				responseDto.Message = errorMessage;
+				return BadRequest(responseDto);
+			}
+			//await _messageBus.PublishMessage(model.Email, _configuration.GetValue<string>("TopicAndQueueNames:RegisterUserQueue"));
+			return Ok(responseDto);
+		}
 
-        [HttpPost("login")]
+		[HttpPost("login")]
         public async Task<IActionResult> Login([FromBody]LoginRequestDto loginRequestDto)
         {
 

@@ -91,6 +91,9 @@ namespace Mango.Services.AuthAPI.Services
             };
             try
             {
+
+                //if()
+
                 var result = await userManager.CreateAsync(user, registrationRequestDto.Password); //all will be done auto
 
                 if (result.Succeeded)

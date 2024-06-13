@@ -75,44 +75,41 @@ namespace Mango.Web.Controllers
             return View();
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Register(RegistrationRequestDto registerRequestDto)
-        {
-            var roles = new List<SelectListItem>()
-                {
-                new SelectListItem{ Text = SD.RoleAdmin, Value = SD.RoleAdmin},
-                new SelectListItem{ Text = SD.RoleUser, Value = SD.RoleUser},
-                 };
-            if (!ModelState.IsValid)
-            {
-                
-                ViewBag.RoleList = roles;
-                return View(registerRequestDto);
-            }
+		[HttpPost]
+		public async Task<IActionResult> Register(RegistrationRequestDto obj)
+		{
+			ResponseDto result = await authService.RegisterAsync(obj);
+			ResponseDto assingRole;
 
-            ResponseDto? responseDto = await authService.RegisterAsync(registerRequestDto);
-            ResponseDto? assignRole;
-            if (responseDto != null && responseDto.IsSuccess)
-            {
-                if (string.IsNullOrEmpty(registerRequestDto.Role))
-                {
-                    registerRequestDto.Role = SD.RoleUser;
-                }
-                assignRole = await authService.AssignRoleAsync(registerRequestDto);
-                if (assignRole != null && assignRole.IsSuccess)
-                {
-                    TempData["success"] = "Registration Successful";
-                    return RedirectToAction(nameof(Login));
-                }
-            }
+			if (result != null && result.IsSuccess)
+			{
+				if (string.IsNullOrEmpty(obj.Role))
+				{
+					obj.Role = SD.RoleUser;
+				}
+				assingRole = await authService.AssignRoleAsync(obj);
+				if (assingRole != null && assingRole.IsSuccess)
+				{
+					TempData["success"] = "Registration Successful";
+					return RedirectToAction(nameof(Login));
+				}
+			}
+			else
+			{
+				TempData["error"] = result.Message;
+			}
 
-            ModelState.AddModelError("CustomError", responseDto.Message);
+			var roleList = new List<SelectListItem>()
+			{
+				new SelectListItem{Text=SD.RoleAdmin,Value=SD.RoleAdmin},
+				new SelectListItem{Text=SD.RoleUser,Value=SD.RoleUser},
+			};
 
-            ViewBag.RoleList = roles;
-            return View(registerRequestDto);
-        }
+			ViewBag.RoleList = roleList;
+			return View(obj);
+		}
 
-        [HttpGet]
+		[HttpGet]
         public async Task<IActionResult> Logout()
         {
             await HttpContext.SignOutAsync();
