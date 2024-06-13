@@ -4,6 +4,9 @@
 	{
 		public static string? CouponApiBase { get; set; }
 		public static string? AuthApiBase { get; set; }
+
+		public const string RoleAdmin = "ADMIN";
+		public const string RoleUser = "USER";
 		public enum ApiType
 		{
 			GET, POST, PUT, DELETE

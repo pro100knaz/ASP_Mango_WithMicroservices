@@ -81,7 +81,7 @@ namespace Mango.Web.Services
 
 						//var reader = new Utf8JsonReader(apiContent);
 
-						var apiResponseDto = /*JsonSerializer.Deserialize<ResponseDto>(apiContent);*/ JsonConvert.DeserializeObject<ResponseDto>(apiContent);
+						var apiResponseDto =  JsonConvert.DeserializeObject<ResponseDto>(apiContent);
 					return apiResponseDto;
 			}
 			}
