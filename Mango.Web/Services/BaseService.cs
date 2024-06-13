@@ -12,20 +12,30 @@ namespace Mango.Web.Services
 	public class BaseService : IBaseService
 	{
 		private readonly IHttpClientFactory httpClientFactory;
+		private readonly ITokenProvider tokenProvider;
 
-		public BaseService(IHttpClientFactory httpClientFactory)
+		public BaseService(IHttpClientFactory httpClientFactory, ITokenProvider tokenProvider)
         {
 			this.httpClientFactory = httpClientFactory;
+			this.tokenProvider = tokenProvider;
 		}
-        public async Task<ResponseDto> SendAsync(RequestDto requestDto)
+        public async Task<ResponseDto> SendAsync(RequestDto requestDto, bool withBeare = true)
 		{
-			HttpClient client = httpClientFactory.CreateClient("MangoAPI");
+			try
+			{
+				HttpClient client = httpClientFactory.CreateClient("MangoAPI");
 			HttpRequestMessage message = new();
 
 
 			message.Headers.Add("Accept", "application/json");
 
-			//token
+				//token
+				if (withBeare)
+				{
+					var token = tokenProvider.GetToken();
+					message.Headers.Add("Authorization", $"Bearer {token}"); //очень важно написать именно так чтобы получить доступ(авторизироваться в удалееном микросервисе) 
+				}
+
 			message.RequestUri = new Uri(requestDto.Url);
 
 			if(requestDto.Data != null)
@@ -59,8 +69,7 @@ namespace Mango.Web.Services
 			apiResponse = await client.SendAsync(message);
 
 
-			try
-			{
+			
 	switch (apiResponse.StatusCode)
 			{
 				case System.Net.HttpStatusCode.NotFound:
