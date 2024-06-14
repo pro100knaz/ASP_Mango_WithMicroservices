@@ -10,7 +10,6 @@ namespace Mango.Services.ProductApi.Controllers
 {
 	[Route("api/product")]
 	[ApiController]
-	[Authorize]
 	public class ProductApiController : ControllerBase
 	{
 		private readonly IMapper mapper;
