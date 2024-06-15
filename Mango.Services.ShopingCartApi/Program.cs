@@ -20,7 +20,11 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddHttpClient("Product", u=> u.BaseAddress 
 = new Uri(builder.Configuration["ServiceUrls:ProductApi"]));
 
+builder.Services.AddHttpClient("Coupon", u=> u.BaseAddress 
+= new Uri(builder.Configuration["ServiceUrls:CouponApi"]));
+
 builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<ICouponService, CouponService>();
 
 builder.Services.AddSwaggerGen(options =>
 {
