@@ -23,7 +23,8 @@ namespace Mango.Web.Services
 				Url = SD.ShoppingCartApiBase + "/api/cart/ApplyCoupon"
 			});
 		}
-	
+
+
 
 		public async Task<ResponseDto?> GetCartByUSerIdAsync(string userId)
 		{
@@ -35,15 +36,13 @@ namespace Mango.Web.Services
 			});
 		}
 
-
-
 		public async Task<ResponseDto?> RemoveFromCartAsync(int cartDetailsId)
 		{
 			return await baseService.SendAsync(new RequestDto()
 			{
 				ApiType = SD.ApiType.POST,
 				Data = cartDetailsId,
-				Url = SD.ShoppingCartApiBase + "/api/cart/CartRemove/"
+				Url = SD.ShoppingCartApiBase + "/api/cart/CartRemove"
 			});
 		}
 

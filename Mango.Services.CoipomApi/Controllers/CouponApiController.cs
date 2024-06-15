@@ -11,7 +11,7 @@ namespace Mango.Services.CouponApi.Controllers
 {
 	[Route("api/coupon")]
 	[ApiController]
-	//[Authorize]
+	[Authorize]
 	public class CouponApiController : ControllerBase //special api controller
 	{
 		private readonly IMapper mapper;

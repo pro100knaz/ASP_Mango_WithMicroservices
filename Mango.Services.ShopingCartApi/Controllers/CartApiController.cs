@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
+using Azure;
 using Mango.Services.ShopingCartApi.Data;
 using Mango.Services.ShopingCartApi.Models;
 using Mango.Services.ShopingCartApi.Models.DTO;
 using Mango.Services.ShopingCartApi.Services.IService;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -12,6 +14,7 @@ namespace Mango.Services.ShopingCartApi.Controllers
 {
 	[Route("api/cart")]
 	[ApiController]
+	//[Authorize]
 	public class CartApiController : ControllerBase
 	{
 		private readonly AppDbContext appDbContext;
@@ -37,21 +40,19 @@ namespace Mango.Services.ShopingCartApi.Controllers
 			try
 			{
 				var cartFromDb = await appDbContext.CartHeaders.FirstAsync(u => u.UserId == cartDto.CartHeader.UserId);
-
 				cartFromDb.CouponCode = cartDto.CartHeader.CouponCode;
-
 				appDbContext.CartHeaders.Update(cartFromDb);
 				await appDbContext.SaveChangesAsync();
 				_responseDto.Result = true;
 			}
 			catch (Exception ex)
 			{
-
-				_responseDto.Message = ex.Message;
 				_responseDto.IsSuccess = false;
+				_responseDto.Message = ex.ToString();
 			}
 			return _responseDto;
 		}
+
 
 
 		//[HttpPost("RemoveCoupon")]

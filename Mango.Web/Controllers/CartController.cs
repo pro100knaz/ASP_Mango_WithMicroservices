@@ -44,5 +44,64 @@ namespace Mango.Web.Controllers
 			return new CartDto();
 		}
 
+
+		[HttpPost]
+		[Authorize]
+		public async Task<IActionResult> ApplyCoupon(CartDto cartDto)
+		{
+			//var userId = User.Claims.Where(u => u.Type == JwtRegisteredClaimNames.Sub)
+			//?.FirstOrDefault()?.Value; //that is how we can get id of logged in user
+
+			//cartDto.CartHeader.UserId = userId;
+			var response = await shoppingCartService.ApplyCouponAsync(cartDto);
+
+
+			if (response != null && response.IsSuccess)
+			{
+				TempData["success"] = "Cart updated successfully";
+				return RedirectToAction(nameof(CartIndex));
+			}
+			TempData["error"] = "There are no potrivit coupon";
+			return RedirectToAction(nameof(CartIndex));
+		}
+		 
+		[HttpPost]
+		[Authorize]
+		public async Task<IActionResult> RemoveCoupon(CartDto cartDto)
+		{
+			//var userId = User.Claims.Where(u => u.Type == JwtRegisteredClaimNames.Sub)
+			//?.FirstOrDefault()?.Value; //that is how we can get id of logged in user
+
+			//cartDto.CartHeader.UserId = userId;
+
+			cartDto.CartHeader.CouponCode = "";
+
+			var response = await shoppingCartService.ApplyCouponAsync(cartDto);
+
+
+			if (response != null && response.IsSuccess)
+			{
+				TempData["success"] = "Cart updated successfully";
+				return RedirectToAction(nameof(CartIndex));
+			}
+			TempData["error"] = "There are no potrivit coupon";
+			return RedirectToAction(nameof(CartIndex));
+		}
+
+
+		[HttpGet]
+		[Authorize]
+		public async Task<IActionResult> Remove(int cartDetailsId)
+		{
+			var response = await shoppingCartService.RemoveFromCartAsync(cartDetailsId);
+
+			if (response != null && response.IsSuccess)
+			{
+				TempData["success"] = "Cart updated successfully";
+				return RedirectToAction(nameof(CartIndex));
+			}
+			return View();
+		}
+
 	}
 }

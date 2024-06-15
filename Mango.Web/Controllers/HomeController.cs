@@ -1,3 +1,4 @@
+using IdentityModel;
 using Mango.Web.Models;
 using Mango.Web.Models.DTO;
 using Mango.Web.Services.IService;
@@ -5,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Diagnostics;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace Mango.Web.Controllers
 {
@@ -12,10 +14,12 @@ namespace Mango.Web.Controllers
 	{
 
 		private readonly IProductService productService;
+		private readonly IShoppingCartService shoppingCartService;
 
-		public HomeController(IProductService productService)
+		public HomeController(IProductService productService, IShoppingCartService shoppingCartService)
 		{
 			this.productService = productService;
+			this.shoppingCartService = shoppingCartService;
 		}
 
 
@@ -63,17 +67,74 @@ namespace Mango.Web.Controllers
 		}
 
 
+		[Authorize]
+		[HttpPost]
+		[ActionName("ProductDetails")]
+		public async Task<IActionResult> ProductDetails(ProductDto productDto)
+		{
+
+			CartDto result = new()
+			{
+				CartHeader = new CartHeaderDto()
+				{
+					UserId = User.Claims.Where(u => u.Type == JwtClaimTypes.Subject)?.FirstOrDefault()?.Value,
+				}
+			};
+
+			CartDetailsDto cartDetails = new()
+			{ 
+				Count = productDto.Count,
+				ProductId = productDto.ProductId,
+			};
+
+			List<CartDetailsDto> cartDetailsDtos = new List<CartDetailsDto>() 
+			{
+				cartDetails
+			};
+
+			result.CartDetails = cartDetailsDtos;
 
 
+			ResponseDto? response = await shoppingCartService.UpsertCartAsync(result);
+
+			if (response != null && response.IsSuccess)
+			{
+				TempData["success"] = "Item HAs been added to the Shopping Cart";
+				return RedirectToAction(nameof(Index));
+			}
+			else
+			{
+				TempData["error"] = response.Message;
+			}
+			return View(result);
+		}
 
 
+		//[HttpPost]
+		//[Authorize]
+		//public async Task<IActionResult> ApplyCoupon(CartDto cartDto)
+		//{
+		//	var response = await shoppingCartService.ApplyCouponAsync(cartDto);
 
+		//	if(response != null && response.IsSuccess)
+		//	{
 
+		//	}
+		//}
 
+		//[HttpPost]
+		//[Authorize]
+		//public async Task<IActionResult> Remove(int cartDetailsId)
+		//{
+		//	var response = await shoppingCartService.RemoveFromCartAsync(cartDetailsId);
 
-
-
-
+		//	if (response != null && response.IsSuccess)
+		//	{
+		//		TempData["success"] = "Cart ipdated successfully";
+		//		return RedirectToAction(nameof(Index));
+		//	}
+		//	return View();
+		//}
 
 
 		public IActionResult Privacy()
