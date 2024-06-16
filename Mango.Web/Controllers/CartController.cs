@@ -45,7 +45,7 @@ namespace Mango.Web.Controllers
 		}
 
 		[Authorize]
-		public async Task<IActionResult> ApplyCoupon(CartDto cartDtoInput) //
+		public async Task<IActionResult> ApplyCoupon(CartDto cartDtoInput) //fixed finally
 		{
 
             CartDto cartDto = await LoadCartDtoBasedOnLoggedInUser();

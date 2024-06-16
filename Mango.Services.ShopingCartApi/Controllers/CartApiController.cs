@@ -169,7 +169,7 @@ namespace Mango.Services.ShopingCartApi.Controllers
 			return _responseDto;
 		}
 
-
+		 
 		[HttpPost("CartUpsert")]
 		public async Task<ResponseDto> CartUpsert([FromBody] CartDto cartDto)
 		{
@@ -236,7 +236,7 @@ namespace Mango.Services.ShopingCartApi.Controllers
 		{
 			try
 			{
-				await messageBus.PublishMessage(cartDto, configuration.GetValue<string>("TopicAndQueueNames:EmailShoppingCart")); // name of queue from Azure
+				await messageBus.PublishMessage(cartDto, configuration.GetValue<string>("TopicAndQueueNames:EmailShoppingCartQueue")); // name of queue from Azure
 				_responseDto.Result = true;
 			}
 			catch (Exception ex)
