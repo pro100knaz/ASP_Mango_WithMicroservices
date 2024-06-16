@@ -44,7 +44,15 @@ namespace Mango.Web.Controllers
 			return View(await LoadCartDtoBasedOnLoggedInUser());
 		}
 
-		[Authorize]
+
+        [Authorize]
+        public async Task<IActionResult> Checkout()
+        {
+            return View(await LoadCartDtoBasedOnLoggedInUser());
+        }
+
+
+        [Authorize]
 		public async Task<IActionResult> ApplyCoupon(CartDto cartDtoInput) //fixed finally
 		{
 
