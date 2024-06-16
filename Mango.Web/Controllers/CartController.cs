@@ -55,6 +55,13 @@ namespace Mango.Web.Controllers
 
 
         [Authorize]
+        public async Task<IActionResult> Confirmation(int orderId)
+        {
+            return View(orderId);
+        }
+
+
+        [Authorize]
 		[HttpPost]
 		[ActionName("Checkout")]
         public async Task<IActionResult> Checkout(CartDto cartDto)
@@ -69,11 +76,36 @@ namespace Mango.Web.Controllers
 
 			if( response is not null && response.IsSuccess)
 			{
-				OrderHeaderDto orderHeaderDto = JsonConvert.DeserializeObject<OrderHeaderDto>(Convert.ToString(response.Result));
-				//get stripe session and redirect to stripe to place order
 				
-			}
-			return View(cartDto);
+				OrderHeaderDto orderHeaderDto = JsonConvert.DeserializeObject<OrderHeaderDto>(Convert.ToString(response.Result));
+
+				//get stripe session and redirect to stripe to place order
+
+				var domain = Request.Scheme + "://" + Request.Host.Value + "/";
+
+				StripeRequestDto stripeRequstDto = new()
+				{
+					ApprovedUrl = domain + "cart/confirmation?orderId="+ orderHeaderDto.OrderHeaderId,
+
+					CancelUrl = domain + "cart/checkout",
+
+					OrderHeader = orderHeaderDto,
+
+				};
+
+				var stripeResponse = await orderService.CreateStripeSession(stripeRequstDto);
+
+
+                StripeRequestDto stripeResult = JsonConvert.DeserializeObject<StripeRequestDto>
+					(Convert.ToString(stripeResponse.Result));
+
+
+				Response.Headers.Add("Location", stripeResult.StripeSessionUrl);
+
+
+				return new StatusCodeResult(303);
+            }
+            return View(cartDto);
 
         }
 
