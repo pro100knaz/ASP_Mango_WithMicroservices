@@ -21,7 +21,7 @@ namespace Mango.Web.Services
             {
                 ApiType = SD.ApiType.POST,
                 Data = cartDto,
-                Url = SD.CouponApiBase + "/api/order/CreateOrder"
+                Url = SD.OrderApiBase + "/api/order/CreateOrder"
             });
         }
     }
