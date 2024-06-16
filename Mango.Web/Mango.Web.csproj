@@ -12,4 +12,8 @@
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.6.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Integration\Mango.MessageBus\Mango.MessageBus.csproj" />
+  </ItemGroup>
+
 </Project>

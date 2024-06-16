@@ -16,30 +16,39 @@ namespace Mango.Services.EmailAPI.Services
         }
         public async Task EmailCartAndLog(CartDto cartDto)
         {
-           StringBuilder message = new StringBuilder();
+            StringBuilder message = new StringBuilder();
 
-            message.AppendLine("<br/> Cart Email Requested");
-            message.AppendLine("<br/> Total" + cartDto.CartHeader.CartTotal);
-            message.AppendLine("<br/>");
-            message.Append("<ul>");
-            foreach (var item in cartDto.CartDetails)
-            {
-                message.Append("<li>");
-                message.Append(item.Product.Name + "  x  " + item.Count);
-                message.Append("</li>");
-            }
-            message.Append("</ul>");
+                message.AppendLine("<br/> Cart Email Requested");
+                message.AppendLine("<br/> Total" + cartDto.CartHeader.CartTotal);
+                message.AppendLine("<br/>");
+                message.Append("<ul>");
+                foreach (var item in cartDto.CartDetails)
+                {
+                    message.Append("<li>");
+                    message.Append(item.Product.Name + "  x  " + item.Count);
+                    message.Append("</li>");
+                }
+                message.Append("</ul>");
 
-            await LogAndEmail(message.ToString(), cartDto.CartHeader.Email);
+             await LogAndEmail(message.ToString(), cartDto.CartHeader.Email);
         }
 
+        public async Task RegisterUserEmailLog(string email)
+        {
+            StringBuilder message = new StringBuilder();
+
+            message.AppendLine("New USer registrated succesfully");
+
+            await LogAndEmail(message.ToString(), email);
+        }
 
         private async Task<bool> LogAndEmail(string message, string email)
         {
             try
             {
-                EmailLogger emailLogger = new() { 
-                
+                EmailLogger emailLogger = new()
+                {
+
                     Email = email,
                     EmailSent = DateTime.Now,
                     Message = message

@@ -107,6 +107,14 @@ namespace Mango.Services.AuthAPI.Services
                         Name = user.Name,
                         PhoneNumber = user.PhoneNumber,
                     };
+
+                    //we have to send new requst ti server bus to log new registered user
+
+                     //inside controller
+
+                    //
+
+
                     return "";
 
                 }
