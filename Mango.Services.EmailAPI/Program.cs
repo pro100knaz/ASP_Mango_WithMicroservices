@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Mango.Services.EmailAPI.Data;
 using Mango.Services.EmailAPI.Messaging;
 using Mango.Services.EmailAPI;
+using Mango.Services.EmailAPI.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -10,6 +11,14 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+
+//adding a db as inside  a singleton 
+var optionBuilder = new DbContextOptionsBuilder<AppDbContext>();
+
+optionBuilder.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+//inside service we will create our own DbCOntext because di impossible to add scoped serv inside singleton
+builder.Services.AddSingleton(new EmailService(optionBuilder.Options));
 
 
 
