@@ -73,7 +73,9 @@ app.UseAuthorization();
 
 app.MapControllers();
 ApplyMigration();
+Stripe.StripeConfiguration.ApiKey = builder.Configuration.GetSection("Stripe").Get<string>();
 app.Run();
+
 
 void ApplyMigration()
 {

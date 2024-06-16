@@ -13,7 +13,7 @@ namespace Mango.Web.Services
         {
 			this.baseService = baseService;
 		}
-      
+        
 
         public async Task<ResponseDto?> CreateOrder(CartDto cartDto)
         {
@@ -32,6 +32,16 @@ namespace Mango.Web.Services
                 ApiType = SD.ApiType.POST,
                 Data = stripeRequestDto,
                 Url = SD.OrderApiBase + "/api/order/CreateStripeSession"
+            });
+        }
+
+        public async Task<ResponseDto?> ValidateStripeSession(int orderHeaderId)
+        {
+            return await baseService.SendAsync(new RequestDto()
+            {
+                ApiType = SD.ApiType.POST,
+                Data = orderHeaderId,
+                Url = SD.OrderApiBase + "/api/order/ValidateStripeSession"
             });
         }
     }
