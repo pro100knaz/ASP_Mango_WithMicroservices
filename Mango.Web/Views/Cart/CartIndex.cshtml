@@ -52,7 +52,7 @@
                         <span style="font-size:17px;"> @cartObj.Count</span>
                     </div>
                     <div class="col-2 col-lg-1 p-0 pt-lg-4 text-center">
-                        <a asp-action="Remove" asp-route-cartDetailsId="@cartObj.CartDetailsId" class="btn btn-sm btn-danger">
+                                <a asp-action="Remove" asp-route-cartDetailsId="@cartObj.CartDetailsId" class="btn btn-sm btn-danger">
                             <i class="bi bi-trash-fill"></i>
                         </a>
                     </div>
@@ -65,13 +65,13 @@
                         {
                             <span>Coupon:</span>
                             <input asp-for="CartHeader.CouponCode" />
-                            <button type="submit" asp-action="ApplyCoupon" class="btn btn-sm btn-success"> Apply </button>
+                            <button  asp-action="ApplyCoupon" class="btn btn-sm btn-success"> Apply </button>
                         }
                         else
                         {
                             <span>Coupon:</span>
                             <input asp-for="CartHeader.CouponCode" disabled/>
-                            <button type="submit" asp-action="RemoveCoupon" class="btn btn-sm btn-success"> Remove </button>
+                            <button  asp-action="RemoveCoupon" class="btn btn-sm btn-success"> Remove </button>
                         }
                     </div>
                     <div class="col-6 text-end">

@@ -1,4 +1,5 @@
 using AutoMapper;
+using Mango.MessageBus;
 using Mango.Services.ShopingCartApi;
 using Mango.Services.ShopingCartApi.Data;
 using Mango.Services.ShopingCartApi.Extensions;
@@ -29,6 +30,8 @@ builder.Services.AddScoped<ICouponService, CouponService>();
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<BackendApiAuthHttpClientHAndler>();
+
+builder.Services.AddScoped<IMessageBus, MessageBus>();
 
 
 builder.Services.AddSwaggerGen(options =>

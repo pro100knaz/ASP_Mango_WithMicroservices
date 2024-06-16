@@ -7,105 +7,128 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Newtonsoft.Json;
+using static Mango.Web.Utility.SD;
+using System.Net;
 namespace Mango.Web.Services
 {
 	public class BaseService : IBaseService
 	{
-		private readonly IHttpClientFactory httpClientFactory;
-		private readonly ITokenProvider tokenProvider;
-
+		private readonly IHttpClientFactory _httpClientFactory;
+		private readonly ITokenProvider _tokenProvider;
 		public BaseService(IHttpClientFactory httpClientFactory, ITokenProvider tokenProvider)
-        {
-			this.httpClientFactory = httpClientFactory;
-			this.tokenProvider = tokenProvider;
+		{
+			_httpClientFactory = httpClientFactory;
+			_tokenProvider = tokenProvider;
 		}
-        public async Task<ResponseDto> SendAsync(RequestDto requestDto, bool withBeare = true)
+
+		public async Task<ResponseDto?> SendAsync(RequestDto requestDto, bool withBearer = true)
 		{
 			try
 			{
-				HttpClient client = httpClientFactory.CreateClient("MangoAPI");
-			HttpRequestMessage message = new();
-
-
-			message.Headers.Add("Accept", "application/json");
-
+				HttpClient client = _httpClientFactory.CreateClient("MangoAPI");
+				HttpRequestMessage message = new();
+				//if (requestDto == ContentType.MultipartFormData)
+				//{
+				//	message.Headers.Add("Accept", "*/*");
+				//}
+				//else
+				//{
+				//	message.Headers.Add("Accept", "application/json");
+				//}
 				//token
-				if (withBeare)
+
+				message.Headers.Add("Accept", "application/json");
+
+				if (withBearer)
 				{
-					var token = tokenProvider.GetToken();
-					message.Headers.Add("Authorization", $"Bearer {token}"); //очень важно написать именно так чтобы получить доступ(авторизироваться в удалееном микросервисе) 
+					var token = _tokenProvider.GetToken();
+					message.Headers.Add("Authorization", $"Bearer {token}");
 				}
 
-			message.RequestUri = new Uri(requestDto.Url);
+				message.RequestUri = new Uri(requestDto.Url);
 
-			if(requestDto.Data != null)
-			{
-				message.Content = new StringContent(JsonConvert.SerializeObject(requestDto.Data), Encoding.UTF8, "application/json");
-			}
+				//if (requestDto.ContentType == ContentType.MultipartFormData)
+				//{
+				//	var content = new MultipartFormDataContent();
 
-			HttpResponseMessage? apiResponse =  null;
+				//	foreach (var prop in requestDto.Data.GetType().GetProperties())
+				//	{
+				//		var value = prop.GetValue(requestDto.Data);
+				//		if (value is FormFile)
+				//		{
+				//			var file = (FormFile)value;
+				//			if (file != null)
+				//			{
+				//				content.Add(new StreamContent(file.OpenReadStream()), prop.Name, file.FileName);
+				//			}
+				//		}
+				//		else
+				//		{
+				//			content.Add(new StringContent(value == null ? "" : value.ToString()), prop.Name);
+				//		}
+				//	}
+				//	message.Content = content;
+				//}
+				//else
+				//{
+				//	if (requestDto.Data != null)
+				//	{
+				//		message.Content = new StringContent(JsonConvert.SerializeObject(requestDto.Data), Encoding.UTF8, "application/json");
+				//	}
+				//}
 
-			switch (requestDto.ApiType)
-			{
-				case Utility.SD.ApiType.GET:
-					message.Method = HttpMethod.Get;
-					break;
-				case Utility.SD.ApiType.POST:
-					message.Method = HttpMethod.Post;
-					break;
-				case Utility.SD.ApiType.PUT:
-					message.Method = HttpMethod.Put;
-					break;
-				case Utility.SD.ApiType.DELETE:
-					message.Method = HttpMethod.Delete;
-					break;
-				default:
-					message.Method = HttpMethod.Get;
-					break;
-			}
+
+				if (requestDto.Data != null)
+				{
+					message.Content = new StringContent(JsonConvert.SerializeObject(requestDto.Data), Encoding.UTF8, "application/json");
+				}
 
 
+				HttpResponseMessage? apiResponse = null;
 
-			apiResponse = await client.SendAsync(message);
+				switch (requestDto.ApiType)
+				{
+					case ApiType.POST:
+						message.Method = HttpMethod.Post;
+						break;
+					case ApiType.DELETE:
+						message.Method = HttpMethod.Delete;
+						break;
+					case ApiType.PUT:
+						message.Method = HttpMethod.Put;
+						break;
+					default:
+						message.Method = HttpMethod.Get;
+						break;
+				}
 
+				apiResponse = await client.SendAsync(message);
 
-			
-	switch (apiResponse.StatusCode)
-			{
-				case System.Net.HttpStatusCode.NotFound:
-					return new ResponseDto { IsSuccess = false, Message = "Not Found" };
-				case System.Net.HttpStatusCode.Forbidden:
-					return new ResponseDto { IsSuccess = false, Message = "Acces Denied" };
-				case System.Net.HttpStatusCode.Unauthorized:
-					return new ResponseDto { IsSuccess = false, Message = "Unauthorized" };
-				case System.Net.HttpStatusCode.InternalServerError:
-					return new ResponseDto { IsSuccess = false, Message = "Internal Server Error" };
-				default:
-
+				switch (apiResponse.StatusCode)
+				{
+					case HttpStatusCode.NotFound:
+						return new() { IsSuccess = false, Message = "Not Found" };
+					case HttpStatusCode.Forbidden:
+						return new() { IsSuccess = false, Message = "Access Denied" };
+					case HttpStatusCode.Unauthorized:
+						return new() { IsSuccess = false, Message = "Unauthorized" };
+					case HttpStatusCode.InternalServerError:
+						return new() { IsSuccess = false, Message = "Internal Server Error" };
+					default:
 						var apiContent = await apiResponse.Content.ReadAsStringAsync();
-						//byte[] byteArray = Encoding.UTF8.GetBytes(apiContent);
-
-						//ReadOnlySpan<byte> jsonReadOnlySpan = new ReadOnlySpan<byte>(byteArray);
-
-
-						//var reader = new Utf8JsonReader(apiContent);
-
-						var apiResponseDto =  JsonConvert.DeserializeObject<ResponseDto>(apiContent);
-					return apiResponseDto;
-			}
+						var apiResponseDto = JsonConvert.DeserializeObject<ResponseDto>(apiContent);
+						return apiResponseDto;
+				}
 			}
 			catch (Exception ex)
 			{
-				var Dto = new ResponseDto()
+				var dto = new ResponseDto
 				{
-					Message = ex.Message,
+					Message = ex.Message.ToString(),
 					IsSuccess = false
 				};
-				return Dto;
+				return dto;
 			}
-
-		
-
 		}
 	}
 }

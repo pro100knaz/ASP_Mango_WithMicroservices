@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Azure;
+using Mango.MessageBus;
 using Mango.Services.ShopingCartApi.Data;
 using Mango.Services.ShopingCartApi.Models;
 using Mango.Services.ShopingCartApi.Models.DTO;
@@ -14,21 +15,27 @@ namespace Mango.Services.ShopingCartApi.Controllers
 {
 	[Route("api/cart")]
 	[ApiController]
-	[Authorize]
+	//[Authorize]
 	public class CartApiController : ControllerBase
 	{
 		private readonly AppDbContext appDbContext;
 		private readonly IMapper mapper;
 		private readonly IProductService productService;
 		private readonly ICouponService couponService;
+		private readonly IMessageBus messageBus;
+		private readonly IConfiguration configuration;
 		private ResponseDto _responseDto;
 
-		public CartApiController(AppDbContext appDbContext, IMapper mapper, IProductService productService, ICouponService couponService)
+		public CartApiController(AppDbContext appDbContext, IMapper mapper, 
+			IProductService productService, ICouponService couponService,
+			IMessageBus messageBus,IConfiguration configuration )
 		{
 			this.appDbContext = appDbContext;
 			this.mapper = mapper;
 			this.productService = productService;
 			this.couponService = couponService;
+			this.messageBus = messageBus;
+			this.configuration = configuration;
 			_responseDto = new ResponseDto();
 		}
 
@@ -127,8 +134,44 @@ namespace Mango.Services.ShopingCartApi.Controllers
 		}
 
 
+		[HttpPost("CartRemove")]
+		public async Task<ResponseDto> CartRemove([FromBody] int cartDetailsId)
+		{
+			try
+			{
+				
+				CartDetails cartDetails = appDbContext.CartDetails
+					.First(u => u.CartDetailsId == cartDetailsId);
+
+				int totalCountofCartItem = appDbContext.CartDetails.AsNoTracking()
+					.Where(c => c.CartHeaderId == cartDetails.CartHeaderId)
+					.Count();
+
+				appDbContext.CartDetails.Remove(cartDetails);
+
+				if(totalCountofCartItem == 1)
+				{
+					var cartHeaderFromDbToRemove = await appDbContext.CartHeaders.AsNoTracking()
+						.FirstOrDefaultAsync(u => u.CartHeaderId == cartDetails.CartHeaderId);
+
+					appDbContext.CartHeaders.Remove(cartHeaderFromDbToRemove);
+				}
+
+				await appDbContext.SaveChangesAsync();
+				_responseDto.Result = true;
+			}
+			catch (Exception ex)
+			{
+
+				_responseDto.Message = ex.Message;
+				_responseDto.IsSuccess = false;
+			}
+			return _responseDto;
+		}
+
+
 		[HttpPost("CartUpsert")]
-		public async Task<ResponseDto> CartUpsert([FromBody]CartDto cartDto)
+		public async Task<ResponseDto> CartUpsert([FromBody] CartDto cartDto)
 		{
 			try
 			{
@@ -188,31 +231,12 @@ namespace Mango.Services.ShopingCartApi.Controllers
 		}
 
 
-
-		[HttpPost("CartRemove")]
-		public async Task<ResponseDto> CartRemove([FromBody] int cartDetailsId)
+		[HttpPost("EmailCartRequest")]
+		public async Task<ResponseDto> EmailCartRequest([FromBody] CartDto cartDto)
 		{
 			try
 			{
-				
-				CartDetails cartDetails = appDbContext.CartDetails
-					.First(u => u.CartDetailsId == cartDetailsId);
-
-				int totalCountofCartItem = appDbContext.CartDetails.AsNoTracking()
-					.Where(c => c.CartHeaderId == cartDetails.CartHeaderId)
-					.Count();
-
-				appDbContext.CartDetails.Remove(cartDetails);
-
-				if(totalCountofCartItem == 1)
-				{
-					var cartHeaderFromDbToRemove = await appDbContext.CartHeaders.AsNoTracking()
-						.FirstOrDefaultAsync(u => u.CartHeaderId == cartDetails.CartHeaderId);
-
-					appDbContext.CartHeaders.Remove(cartHeaderFromDbToRemove);
-				}
-
-				await appDbContext.SaveChangesAsync();
+				await messageBus.PublishMessage(cartDto, configuration.GetValue<string>("TopicAndQueueNames:EmailShoppingCart")); // name of queue from Azure
 				_responseDto.Result = true;
 			}
 			catch (Exception ex)
@@ -223,7 +247,6 @@ namespace Mango.Services.ShopingCartApi.Controllers
 			}
 			return _responseDto;
 		}
-
 
 	}
 }
