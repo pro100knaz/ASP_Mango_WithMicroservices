@@ -14,7 +14,7 @@ namespace Mango.Services.ShopingCartApi.Controllers
 {
 	[Route("api/cart")]
 	[ApiController]
-	//[Authorize]
+	[Authorize]
 	public class CartApiController : ControllerBase
 	{
 		private readonly AppDbContext appDbContext;
