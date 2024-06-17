@@ -138,9 +138,9 @@ namespace Mango.Services.OrderAPI.Controllers
 
 
         [Authorize]
-        [HttpPost("CreateStripeSession")]
-        //It must be validate stripe session but i am lazy to change anything
-        public async Task<ResponseDto> CreateStripeSession([FromBody] int orderHeaderId)
+        [HttpPost("ValidateStripeSession")]
+        
+        public async Task<ResponseDto> ValidateStripeSession([FromBody] int orderHeaderId)
         {
             try
             {
