@@ -115,7 +115,7 @@ namespace Mango.Services.ProductApi.Controllers
 					// https :// {123123} /adawdadawd/ 
 					var baseUrl = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host.Value}{HttpContext.Request.PathBase.Value}";
 
-					product.ImageUrl = baseUrl + @"/ProductImages/" + filePath;
+					product.ImageUrl = baseUrl + @"/ProductImages/" + fileName;
 					product.ImageLocalPath = filePAthDirectory;
 				}
 				else
@@ -171,7 +171,22 @@ namespace Mango.Services.ProductApi.Controllers
 		{
 			try
 			{
+				
 				Product? product = appDbContext.Products.FirstOrDefault(c => c.ProductId == id); //can use FirstOrDefault cause it doesn't trow an exception
+				
+				
+				if(!string.IsNullOrEmpty(product.ImageLocalPath))
+				{
+					var oldFilePAthDirectory = Path.Combine(Directory.GetCurrentDirectory(), product.ImageLocalPath);
+					FileInfo file = new FileInfo(oldFilePAthDirectory);
+					if(file.Exists)
+					{
+						file.Delete();
+					}
+
+				}
+
+
 				var x = appDbContext.Products.Remove(product);
 				appDbContext.SaveChanges();
 			}
