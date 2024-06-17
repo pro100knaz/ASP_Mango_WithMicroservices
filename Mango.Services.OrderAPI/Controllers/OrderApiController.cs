@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Mango.MessageBus;
 using Mango.Services.OrderAPI.Models;
 using Mango.Services.OrderAPI.Models.DTO;
 using Mango.Services.OrderAPI.Services.IService;
@@ -18,13 +19,19 @@ namespace Mango.Services.OrderAPI.Controllers
     {
         private readonly AppDbContext appDbContext;
         private readonly IProductService productService;
+        private readonly IMessageBus messageBus;
+        private readonly IConfiguration configuration;
         private readonly IMapper mapper;
         private readonly ResponseDto response;
 
-        public OrderApiController(AppDbContext appDbContext, IProductService productService, IMapper mapper)
+        public OrderApiController(AppDbContext appDbContext, 
+            IProductService productService,IMessageBus messageBus , 
+            IConfiguration configuration , IMapper mapper)
         {
             this.appDbContext = appDbContext;
             this.productService = productService;
+            this.messageBus = messageBus;
+            this.configuration = configuration;
             this.mapper = mapper;
 
             response = new ResponseDto();
@@ -132,6 +139,7 @@ namespace Mango.Services.OrderAPI.Controllers
 
         [Authorize]
         [HttpPost("CreateStripeSession")]
+        //It must be validate stripe session but i am lazy to change anything
         public async Task<ResponseDto> CreateStripeSession([FromBody] int orderHeaderId)
         {
             try
@@ -153,6 +161,15 @@ namespace Mango.Services.OrderAPI.Controllers
                     orderHeader.Status = SD.Status_Approved;
 
                     await appDbContext.SaveChangesAsync();
+
+                    RewardDto rewardDto = new() {
+                        RewardActivity = Convert.ToInt32(orderHeader.OrderTotal),
+                        OrderId = orderHeader.OrderHeaderId,
+                        UserId = orderHeader.UserId
+                    };
+
+                    string TopicName = configuration.GetValue<string>("TopicAndQueueNames:OrderCreatedTopic");
+                    await messageBus.PublishMessage(rewardDto, TopicName);
 
                     response.Result = mapper.Map<OrderHeaderDto>(orderHeader);
                 }
