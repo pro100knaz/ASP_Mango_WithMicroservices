@@ -53,8 +53,6 @@ namespace Mango.Web.Controllers
             return View(await LoadCartDtoBasedOnLoggedInUser());
         }
 
-
-
         [Authorize]
         public async Task<IActionResult> Confirmation(int orderId)
         {
