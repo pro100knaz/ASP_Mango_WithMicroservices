@@ -1,5 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Mango.Services.RewardApi.Data;
+using Mango.Services.RewardApi.Services;
+using Mango.Services.RewardApi.Messaging;
+using Mango.Services.RewardApi.Extensions;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -16,17 +19,16 @@ var optionBuilder = new DbContextOptionsBuilder<AppDbContext>();
 
 optionBuilder.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 //inside service we will create our own DbCOntext because di impossible to add scoped serv inside singleton
-
-
-//builder.Services.AddSingleton(new EmailService(optionBuilder.Options));
-
-
+builder.Services.AddSingleton(new RewardService(optionBuilder.Options));
 
 
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
+
+
+builder.Services.AddSingleton<IAzureServiceBusConsumer, AzureServiceBusConsumer>();
 
 
 var app = builder.Build();
@@ -44,6 +46,11 @@ app.UseAuthorization();
 
 app.MapControllers();
 ApplyMigration();
+
+
+app.UseAzureServiceBusConsumer(); //расширение для функции чтения и записи данных
+
+
 app.Run();
 
 void ApplyMigration()
