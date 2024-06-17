@@ -87,7 +87,7 @@ namespace Mango.Services.ProductApi.Controllers
 		}
 		[HttpPost]
 		[Authorize(Roles = "ADMIN")]
-		public ResponseDto Post([FromBody] ProductDto productDto)
+		public ResponseDto Post([FromForm] ProductDto productDto) //FromForm to handle with multipart data
 		{
 			try
 			{
@@ -95,6 +95,34 @@ namespace Mango.Services.ProductApi.Controllers
 				if (product == null)
 					ResponseDto.Result = false;
 				appDbContext.Products.Add(product);
+				appDbContext.SaveChanges();
+
+
+				//saving image 
+				if(productDto.Image != null)
+				{
+					//i am going to create my own name for images
+					string fileName = product.ProductId + Path.GetExtension(productDto.Image.FileName);
+					string filePath = @$"wwwroot\ProductImages\" + fileName;
+
+					var filePAthDirectory = Path.Combine(Directory.GetCurrentDirectory(), filePath);
+
+
+					using (var fileStream = new FileStream(filePAthDirectory, FileMode.Create))
+					{
+						productDto.Image.CopyTo(fileStream);
+					}
+					// https :// {123123} /adawdadawd/ 
+					var baseUrl = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host.Value}{HttpContext.Request.PathBase.Value}";
+
+					product.ImageUrl = baseUrl + @"/ProductImages/" + filePath;
+					product.ImageLocalPath = filePAthDirectory;
+				}
+				else
+				{
+					product.ImageUrl = "https://placehold.co/600x400";
+				}
+				appDbContext.Products.Update(product);
 				appDbContext.SaveChanges();
 
 				ResponseDto.Result = mapper.Map<ProductDto>(product);

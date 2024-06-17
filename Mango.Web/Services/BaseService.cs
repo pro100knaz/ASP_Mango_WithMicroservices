@@ -9,6 +9,7 @@ using System.Text.Json.Serialization;
 using Newtonsoft.Json;
 using static Mango.Web.Utility.SD;
 using System.Net;
+using Mango.Web.Utility;
 namespace Mango.Web.Services
 {
 	public class BaseService : IBaseService
@@ -27,17 +28,20 @@ namespace Mango.Web.Services
 			{
 				HttpClient client = _httpClientFactory.CreateClient("MangoAPI");
 				HttpRequestMessage message = new();
-				//if (requestDto == ContentType.MultipartFormData)
-				//{
-				//	message.Headers.Add("Accept", "*/*");
-				//}
-				//else
-				//{
-				//	message.Headers.Add("Accept", "application/json");
-				//}
+
+				if (requestDto.ContentType == SD.ContentType.MultipartFormData)
+				{
+					message.Headers.Add("Accept", "*/*");  //anyt media type or subtype
+				}
+				else
+				{
+					message.Headers.Add("Accept", "application/json");
+				}
+
+
 				//token
 
-				message.Headers.Add("Accept", "application/json");
+				//	message.Headers.Add("Accept", "application/json");
 
 				if (withBearer)
 				{
@@ -47,42 +51,35 @@ namespace Mango.Web.Services
 
 				message.RequestUri = new Uri(requestDto.Url);
 
-				//if (requestDto.ContentType == ContentType.MultipartFormData)
-				//{
-				//	var content = new MultipartFormDataContent();
-
-				//	foreach (var prop in requestDto.Data.GetType().GetProperties())
-				//	{
-				//		var value = prop.GetValue(requestDto.Data);
-				//		if (value is FormFile)
-				//		{
-				//			var file = (FormFile)value;
-				//			if (file != null)
-				//			{
-				//				content.Add(new StreamContent(file.OpenReadStream()), prop.Name, file.FileName);
-				//			}
-				//		}
-				//		else
-				//		{
-				//			content.Add(new StringContent(value == null ? "" : value.ToString()), prop.Name);
-				//		}
-				//	}
-				//	message.Content = content;
-				//}
-				//else
-				//{
-				//	if (requestDto.Data != null)
-				//	{
-				//		message.Content = new StringContent(JsonConvert.SerializeObject(requestDto.Data), Encoding.UTF8, "application/json");
-				//	}
-				//}
-
-
-				if (requestDto.Data != null)
+				if (requestDto.ContentType == SD.ContentType.MultipartFormData)
 				{
-					message.Content = new StringContent(JsonConvert.SerializeObject(requestDto.Data), Encoding.UTF8, "application/json");
-				}
+					var content = new MultipartFormDataContent();
 
+					foreach (var prop in requestDto.Data.GetType().GetProperties()) //get a  file like a new straeam content
+					{
+						var value = prop.GetValue(requestDto.Data);
+						if (value is FormFile) //searching for FormFile 
+						{
+							var file = (FormFile)value;
+							if (file != null)
+							{
+								content.Add(new StreamContent(file.OpenReadStream()), prop.Name, file.FileName);
+							}
+						}
+						else
+						{
+							content.Add(new StringContent(value == null ? "" : value.ToString()), prop.Name);
+						}
+					}
+					message.Content = content;
+				}
+				else
+				{
+					if (requestDto.Data != null)
+					{
+						message.Content = new StringContent(JsonConvert.SerializeObject(requestDto.Data), Encoding.UTF8, "application/json");
+					}
+				}
 
 				HttpResponseMessage? apiResponse = null;
 

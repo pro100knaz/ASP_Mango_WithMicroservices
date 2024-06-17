@@ -15,6 +15,6 @@ namespace Mango.Web.Models
 		[Range(1, 100)]
 		public int Count { get; set; } = 1;
 
-		//public IFormFile? Image { get; set; }
+		public IFormFile? Image { get; set; }
 	}
 }
