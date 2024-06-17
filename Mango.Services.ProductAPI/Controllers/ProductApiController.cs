@@ -140,14 +140,56 @@ namespace Mango.Services.ProductApi.Controllers
 
 		[HttpPut]
 		[Authorize(Roles = "ADMIN")]
-		public ResponseDto Put([FromBody] ProductDto productDto)
+		public ResponseDto Put([FromForm] ProductDto productDto)
 		{
-
 			try
 			{
 				Product? product = mapper.Map<Product>(productDto);
-				if (product == null)
-					ResponseDto.Result = false;
+
+                if (product == null)
+				{
+                    ResponseDto.Result = false;
+					throw new ArgumentNullException();
+
+				}
+
+                if (productDto.Image != null)
+                {
+
+                    if (!string.IsNullOrEmpty(product.ImageLocalPath))
+                    {
+                        var oldFilePAthDirectory = Path.Combine(Directory.GetCurrentDirectory(), product.ImageLocalPath);
+                        FileInfo file = new FileInfo(oldFilePAthDirectory);
+                        if (file.Exists)
+                        {
+                            file.Delete();
+                        }
+                    }
+
+
+
+                    //i am going to create my own name for images
+                    string fileName = product.ProductId + Path.GetExtension(productDto.Image.FileName);
+                    string filePath = @$"wwwroot\ProductImages\" + fileName;
+
+                    var filePAthDirectory = Path.Combine(Directory.GetCurrentDirectory(), filePath);
+
+
+                    using (var fileStream = new FileStream(filePAthDirectory, FileMode.Create))
+                    {
+                        productDto.Image.CopyTo(fileStream);
+                    }
+                    // https :// {123123} /adawdadawd/ 
+                    var baseUrl = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host.Value}{HttpContext.Request.PathBase.Value}";
+
+                    product.ImageUrl = baseUrl + @"/ProductImages/" + fileName;
+                    product.ImageLocalPath = filePAthDirectory;
+                }
+                else
+                {
+                    product.ImageUrl = "https://placehold.co/600x400";
+                }
+
 				appDbContext.Products.Update(product);
 				appDbContext.SaveChanges();
 
@@ -183,7 +225,6 @@ namespace Mango.Services.ProductApi.Controllers
 					{
 						file.Delete();
 					}
-
 				}
 
 
