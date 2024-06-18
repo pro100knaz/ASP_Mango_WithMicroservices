@@ -5,9 +5,11 @@ using Microsoft.AspNetCore.Mvc;
 using System.IdentityModel.Tokens.Jwt;
 using Mango.Web.Models.DTO;
 using Newtonsoft.Json;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Mango.Web.Controllers
 {
+	[Authorize]
 	public class OrderController : Controller
 	{
 		private readonly IOrderService orderService;
