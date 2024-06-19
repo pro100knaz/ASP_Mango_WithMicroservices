@@ -20,6 +20,8 @@ optionBuilder.UseSqlServer(builder.Configuration.GetConnectionString("DefaultCon
 //inside service we will create our own DbCOntext because di impossible to add scoped serv inside singleton
 builder.Services.AddSingleton(new EmailService(optionBuilder.Options));
 
+builder.Services.AddHostedService<RabbitMqAuthConsumer>();//will automatically start the service
+
 
 
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -27,7 +29,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 
-builder.Services.AddSingleton<IAzureServiceBusConsumer, AzureServiceBusConsumer>();
+//builder.Services.AddSingleton<IAzureServiceBusConsumer, AzureServiceBusConsumer>();
 
 
 var app = builder.Build();
