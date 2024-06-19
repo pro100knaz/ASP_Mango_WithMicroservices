@@ -21,6 +21,7 @@ optionBuilder.UseSqlServer(builder.Configuration.GetConnectionString("DefaultCon
 builder.Services.AddSingleton(new EmailService(optionBuilder.Options));
 
 builder.Services.AddHostedService<RabbitMqAuthConsumer>();//will automatically start the service
+builder.Services.AddHostedService<RabbitMqCartConsumer>();//will automatically start the service
 
 
 
@@ -51,7 +52,7 @@ app.MapControllers();
 
 ApplyMigration();
 
-app.UseAzureServiceBusConsumer(); //расширение для функции чтения и записи данных
+//app.UseAzureServiceBusConsumer(); //расширение для функции чтения и записи данных
 
 app.Run();
 

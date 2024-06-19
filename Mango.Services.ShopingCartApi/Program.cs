@@ -3,6 +3,7 @@ using Mango.MessageBus;
 using Mango.Services.ShopingCartApi;
 using Mango.Services.ShopingCartApi.Data;
 using Mango.Services.ShopingCartApi.Extensions;
+using Mango.Services.ShopingCartApi.RabbitMqSender;
 using Mango.Services.ShopingCartApi.Services;
 using Mango.Services.ShopingCartApi.Services.IService;
 using Mango.Services.ShopingCartApi.Utilities;
@@ -31,6 +32,8 @@ builder.Services.AddScoped<ICouponService, CouponService>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<BackendApiAuthHttpClientHAndler>();
 
+
+builder.Services.AddScoped<IRabbitMqCartMessageSender, RabbitMqCartMessageSender>();
 builder.Services.AddScoped<IMessageBus, MessageBus>();
 
 
