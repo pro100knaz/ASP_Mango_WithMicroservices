@@ -13,37 +13,77 @@ namespace Mango.Services.AuthAPI.RabbitMqSender
 
 		private IConnection connection;
 
-        public RabbitMqAuthMessageSender()
-        {
+		public RabbitMqAuthMessageSender()
+		{
 			_hostName = "localhost";
 			_userName = "guest";
 			_password = "guest";
-        }
+		}
 
-        public void SendMessage(object message, string queueName)
+		public void SendMessage(object message, string queueName)
 		{
-			var factory = new ConnectionFactory
-			{
-				HostName = _hostName,
-				UserName = _userName,
-				Password = _password
-			};
+			//var factory = new ConnectionFactory
+			//{
+			//	HostName = _hostName,
+			//	UserName = _userName,
+			//	Password = _password
+			//};
 
-			connection = factory.CreateConnection();
+
+			//connection = factory.CreateConnection();
 
 			//establish a channeel for that connection (to pass any message)
-			using var channel = connection.CreateModel();
 
-			//channel.QueueDeclare(queueName); // обьявляется очередь
-			channel.QueueDeclare(queueName, false,false,false,null);
+			if (ConnectionExist())
+			{
 
-			var json = JsonConvert.SerializeObject(message);
-			var body  = Encoding.UTF8.GetBytes(json);
+				using var channel = connection.CreateModel();
 
-			channel.BasicPublish(exchange: "", routingKey: queueName, null,  body: body);
+				//channel.QueueDeclare(queueName); // обьявляется очередь
+				channel.QueueDeclare(queueName, false, false, false, null);
 
+				var json = JsonConvert.SerializeObject(message);
+				var body = Encoding.UTF8.GetBytes(json);
+
+				channel.BasicPublish(exchange: "", routingKey: queueName, null, body: body);
+
+
+			}
 
 
 		}
+
+		private void CreateConnection()
+		{
+			try
+			{
+				var factory = new ConnectionFactory
+				{
+					HostName = _hostName,
+					UserName = _userName,
+					Password = _password
+				};
+
+
+				connection = factory.CreateConnection();
+			}
+			catch (Exception ex)
+			{
+
+				throw;
+			}
+		}
+
+
+		private bool ConnectionExist()
+		{
+			if (connection == null)
+			{
+				return true;
+			}
+			CreateConnection();
+			return true;
+		}
+
 	}
 }
