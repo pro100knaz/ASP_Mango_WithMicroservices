@@ -2,6 +2,7 @@
 using Mango.MessageBus;
 using Mango.Services.OrderAPI.Models;
 using Mango.Services.OrderAPI.Models.DTO;
+using Mango.Services.OrderAPI.RabbitMqSender;
 using Mango.Services.OrderAPI.Services.IService;
 using Mango.Services.OrderAPI.Utilities;
 using Mango.Services.ShopingCartApi.Data;
@@ -21,13 +22,13 @@ namespace Mango.Services.OrderAPI.Controllers
     {
         private readonly AppDbContext appDbContext;
         private readonly IProductService productService;
-        private readonly IMessageBus messageBus;
+        private readonly IRabbitMqOrderMessageSender messageBus;
         private readonly IConfiguration configuration;
         private readonly IMapper mapper;
         private readonly ResponseDto response;
 
         public OrderApiController(AppDbContext appDbContext,
-            IProductService productService, IMessageBus messageBus,
+            IProductService productService, IRabbitMqOrderMessageSender messageBus,
             IConfiguration configuration, IMapper mapper)
         {
             this.appDbContext = appDbContext;
@@ -265,7 +266,7 @@ namespace Mango.Services.OrderAPI.Controllers
                     };
 
                     string TopicName = configuration.GetValue<string>("TopicAndQueueNames:OrderCreatedTopic");
-                    await messageBus.PublishMessage(rewardDto, TopicName);
+                    messageBus.SendMessage(rewardDto, TopicName);
 
                     response.Result = mapper.Map<OrderHeaderDto>(orderHeader);
                 }

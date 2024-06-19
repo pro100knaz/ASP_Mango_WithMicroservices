@@ -22,6 +22,7 @@ builder.Services.AddSingleton(new EmailService(optionBuilder.Options));
 
 builder.Services.AddHostedService<RabbitMqAuthConsumer>();//will automatically start the service
 builder.Services.AddHostedService<RabbitMqCartConsumer>();//will automatically start the service
+builder.Services.AddHostedService<RabbitMqOrderConsumer>();//will automatically start the service
 
 
 

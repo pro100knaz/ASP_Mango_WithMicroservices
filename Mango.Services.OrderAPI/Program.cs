@@ -1,6 +1,7 @@
 using AutoMapper;
 using Mango.MessageBus;
 using Mango.Services.OrderAPI.Extensions;
+using Mango.Services.OrderAPI.RabbitMqSender;
 using Mango.Services.OrderAPI.Services;
 using Mango.Services.OrderAPI.Services.IService;
 using Mango.Services.OrderAPI.Utilities;
@@ -28,6 +29,7 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<BackendApiAuthHttpClientHAndler>();
 
 builder.Services.AddScoped<IMessageBus, MessageBus>();
+builder.Services.AddScoped<IRabbitMqOrderMessageSender, RabbitMqOrderMessageSender>();
 
 
 builder.Services.AddSwaggerGen(options =>
