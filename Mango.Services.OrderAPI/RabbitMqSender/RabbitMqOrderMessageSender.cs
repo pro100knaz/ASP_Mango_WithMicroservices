@@ -21,7 +21,7 @@ namespace Mango.Services.OrderAPI.RabbitMqSender
 		}
 
 		public void SendMessage(object message, string exchangeName)
-		{			
+		{
 			if (ConnectionExist())
 			{
 

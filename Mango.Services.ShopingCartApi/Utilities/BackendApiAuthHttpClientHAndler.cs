@@ -9,7 +9,7 @@ namespace Mango.Services.ShopingCartApi.Utilities
 		private readonly IHttpContextAccessor accessor;
 
 		public BackendApiAuthHttpClientHAndler(IHttpContextAccessor accessor)
-        {
+		{
 			this.accessor = accessor;
 		}
 		protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)

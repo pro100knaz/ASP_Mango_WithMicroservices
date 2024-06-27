@@ -11,6 +11,6 @@ namespace Mango.Web.Services.IService
 		Task<ResponseDto?> Get(string? userId);
 		Task<ResponseDto?> GetOrder(int orderId);
 		Task<ResponseDto?> UpdateOrderStatus(int orderId, string newStatus);
-	
+
 	}
 }

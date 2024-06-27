@@ -1,11 +1,11 @@
 ﻿using Mango.Web.Models;
+using Mango.Web.Models.DTO;
 using Mango.Web.Services.IService;
 using Mango.Web.Utility;
-using Microsoft.AspNetCore.Mvc;
-using System.IdentityModel.Tokens.Jwt;
-using Mango.Web.Models.DTO;
-using Newtonsoft.Json;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace Mango.Web.Controllers
 {
@@ -58,14 +58,14 @@ namespace Mango.Web.Controllers
 
 
 		[HttpPost("OrderReadyForPickup")]
-		public async Task< IActionResult> OrderReadyForPickup(int orderId)
-		{		
+		public async Task<IActionResult> OrderReadyForPickup(int orderId)
+		{
 			var response = orderService.UpdateOrderStatus(orderId, SD.Status_ReadyForPickup).GetAwaiter().GetResult();
 
 			if (response != null && response.IsSuccess)
 			{
 				TempData["success"] = "Status updated successfully";
-				return RedirectToAction(nameof(OrderDetail), new { orderId = orderId});
+				return RedirectToAction(nameof(OrderDetail), new { orderId = orderId });
 
 			}
 			TempData["error"] = "Something Went Wrong";

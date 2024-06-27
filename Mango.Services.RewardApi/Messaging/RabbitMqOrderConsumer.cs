@@ -1,7 +1,6 @@
 ﻿
 using Mango.Services.RewardApi.MEssages;
 using Mango.Services.RewardApi.Services;
-using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
@@ -17,9 +16,9 @@ namespace Mango.Services.RewardApi.Messaging
 		private IModel channel;
 		private readonly string orderCreatedTopic;
 		private readonly string orderCreatedEmailMessage;
-		private readonly string queueName="";
+		private readonly string queueName = "";
 		public RabbitMqOrderConsumer(IConfiguration configuration, RewardService rewardService)
-        {
+		{
 			this.configuration = configuration;
 			this.rewardService = rewardService;
 
@@ -36,13 +35,13 @@ namespace Mango.Services.RewardApi.Messaging
 			orderCreatedTopic = configuration.GetValue<string>("TopicAndQueueNames:OrderCreatedTopic");
 			//orderCreatedEmailMessage = configuration.GetValue<string>("TopicAndQueueNames:EmailShoppingCartQueue");
 
-			channel.ExchangeDeclare(orderCreatedTopic, ExchangeType.Fanout, durable:false);
+			channel.ExchangeDeclare(orderCreatedTopic, ExchangeType.Fanout, durable: false);
 
 			queueName = channel.QueueDeclare().QueueName;
 			channel.QueueBind(queueName, orderCreatedTopic, "");
 
 		}
-        protected override Task ExecuteAsync(CancellationToken stoppingToken)
+		protected override Task ExecuteAsync(CancellationToken stoppingToken)
 		{
 
 			stoppingToken.ThrowIfCancellationRequested();
@@ -53,7 +52,7 @@ namespace Mango.Services.RewardApi.Messaging
 				var content = Encoding.UTF8.GetString(eventArgs.Body.ToArray()); // it is email is string
 
 				RewardsMessages message = JsonConvert.DeserializeObject<RewardsMessages>(content);
-				 HandleMessage(message).GetAwaiter().GetResult();
+				HandleMessage(message).GetAwaiter().GetResult();
 
 				//message weas received and consumed we have to notify about it
 				channel.BasicAck(eventArgs.DeliveryTag, false);

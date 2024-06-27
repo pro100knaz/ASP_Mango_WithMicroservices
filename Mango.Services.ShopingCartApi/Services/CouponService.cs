@@ -8,7 +8,7 @@ namespace Mango.Services.ShopingCartApi.Services
 	{
 		private readonly IHttpClientFactory httpClientFactory;
 
-		public CouponService (IHttpClientFactory httpClientFactory)
+		public CouponService(IHttpClientFactory httpClientFactory)
 		{
 			this.httpClientFactory = httpClientFactory;
 		}

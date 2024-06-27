@@ -12,13 +12,13 @@ namespace Mango.Web.Controllers
 	public class CartController : Controller
 	{
 		private readonly IShoppingCartService shoppingCartService;
-        private readonly IOrderService orderService;
+		private readonly IOrderService orderService;
 
-        public CartController(IShoppingCartService shoppingCartService, IOrderService orderService )
-        {
+		public CartController(IShoppingCartService shoppingCartService, IOrderService orderService)
+		{
 			this.shoppingCartService = shoppingCartService;
-            this.orderService = orderService;
-        }
+			this.orderService = orderService;
+		}
 
 		[HttpPost]
 		[Authorize]
@@ -42,56 +42,56 @@ namespace Mango.Web.Controllers
 
 
 		[Authorize]
-        public async Task<IActionResult> CartIndex()
+		public async Task<IActionResult> CartIndex()
 		{
 			return View(await LoadCartDtoBasedOnLoggedInUser());
 		}
 
-        [Authorize]
-        public async Task<IActionResult> Checkout()
-        {
-            return View(await LoadCartDtoBasedOnLoggedInUser());
-        }
+		[Authorize]
+		public async Task<IActionResult> Checkout()
+		{
+			return View(await LoadCartDtoBasedOnLoggedInUser());
+		}
 
-        [Authorize]
-        public async Task<IActionResult> Confirmation(int orderId)
-        {
-            var response = await orderService.ValidateStripeSession(orderId);
+		[Authorize]
+		public async Task<IActionResult> Confirmation(int orderId)
+		{
+			var response = await orderService.ValidateStripeSession(orderId);
 
-            if (response != null && response.IsSuccess)
-            {
+			if (response != null && response.IsSuccess)
+			{
 
 				OrderHeaderDto orderHeaderDto = JsonConvert.DeserializeObject<OrderHeaderDto>(Convert.ToString(response.Result));
 
-				if(orderHeaderDto.Status == SD.Status_Approved)
+				if (orderHeaderDto.Status == SD.Status_Approved)
 				{
 					return View(orderId);
 				}
-            }
+			}
 
 
 			//redirect to some error page basd on the status  
-            return View(orderId);
-        }
+			return View(orderId);
+		}
 
 
-        [Authorize]
+		[Authorize]
 		[HttpPost]
 		[ActionName("Checkout")]
-        public async Task<IActionResult> Checkout(CartDto cartDto)
-        {
-            CartDto cart = await LoadCartDtoBasedOnLoggedInUser();
+		public async Task<IActionResult> Checkout(CartDto cartDto)
+		{
+			CartDto cart = await LoadCartDtoBasedOnLoggedInUser();
 
-			
+
 			cart.CartHeader.Phone = cartDto.CartHeader.Phone;
 			cart.CartHeader.Email = cartDto.CartHeader.Email;
 			cart.CartHeader.Name = cartDto.CartHeader.Name;
 
 			var response = await orderService.CreateOrder(cart);
 
-			if( response is not null && response.IsSuccess)
+			if (response is not null && response.IsSuccess)
 			{
-				
+
 				OrderHeaderDto orderHeaderDto = JsonConvert.DeserializeObject<OrderHeaderDto>(Convert.ToString(response.Result));
 
 				//get stripe session and redirect to stripe to place order
@@ -100,7 +100,7 @@ namespace Mango.Web.Controllers
 
 				StripeRequestDto stripeRequstDto = new()
 				{
-					ApprovedUrl = domain + "cart/confirmation?orderId="+ orderHeaderDto.OrderHeaderId,
+					ApprovedUrl = domain + "cart/confirmation?orderId=" + orderHeaderDto.OrderHeaderId,
 
 					CancelUrl = domain + "cart/checkout",
 
@@ -111,7 +111,7 @@ namespace Mango.Web.Controllers
 				var stripeResponse = await orderService.CreateStripeSession(stripeRequstDto);
 
 
-                StripeRequestDto stripeResult = JsonConvert.DeserializeObject<StripeRequestDto>
+				StripeRequestDto stripeResult = JsonConvert.DeserializeObject<StripeRequestDto>
 					(Convert.ToString(stripeResponse.Result));
 
 
@@ -119,20 +119,20 @@ namespace Mango.Web.Controllers
 
 
 				return new StatusCodeResult(303);
-            }
-            return View(cartDto);
+			}
+			return View(cartDto);
 
-        }
+		}
 
 
-        [Authorize]
+		[Authorize]
 		public async Task<IActionResult> ApplyCoupon(CartDto cartDtoInput) //fixed finally
 		{
 
-            CartDto cartDto = await LoadCartDtoBasedOnLoggedInUser();
+			CartDto cartDto = await LoadCartDtoBasedOnLoggedInUser();
 			cartDto.CartHeader.CouponCode = cartDtoInput.CartHeader.CouponCode;
 
-            ResponseDto? response = await shoppingCartService.ApplyCouponAsync(cartDto);
+			ResponseDto? response = await shoppingCartService.ApplyCouponAsync(cartDto);
 
 
 			if (response != null && response.IsSuccess)
@@ -143,14 +143,14 @@ namespace Mango.Web.Controllers
 			TempData["error"] = "There are no potrivit coupon";
 			return RedirectToAction(nameof(CartIndex));
 		}
-		 
-		
+
+
 		[Authorize]
 		public async Task<IActionResult> RemoveCoupon()
 		{
-            CartDto cartDto = await LoadCartDtoBasedOnLoggedInUser();
+			CartDto cartDto = await LoadCartDtoBasedOnLoggedInUser();
 
-            cartDto.CartHeader.CouponCode = "";
+			cartDto.CartHeader.CouponCode = "";
 
 			var response = await shoppingCartService.ApplyCouponAsync(cartDto);
 
@@ -183,7 +183,7 @@ namespace Mango.Web.Controllers
 			var userId = User.Claims.Where(u => u.Type == JwtRegisteredClaimNames.Sub)
 				?.FirstOrDefault()?.Value; //that is how we can get id of logged in user
 
-			if(userId is null)
+			if (userId is null)
 			{
 				TempData["error"] = "Only for Authorized persons";
 				RedirectToAction("Index", "Home");
@@ -191,7 +191,7 @@ namespace Mango.Web.Controllers
 
 			ResponseDto? response = await shoppingCartService.GetCartByUserIdAsnyc(userId);
 
-			if(response != null && response.IsSuccess)
+			if (response != null && response.IsSuccess)
 			{
 				CartDto cartDto = JsonConvert.DeserializeObject<CartDto>(Convert.ToString(response.Result));
 				return cartDto;

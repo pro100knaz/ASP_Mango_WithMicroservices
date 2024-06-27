@@ -16,7 +16,7 @@ namespace Mango.Services.EmailAPI.Messaging
 		private IModel channel;
 		private readonly string registerEmailQueue;
 		public RabbitMqCartConsumer(IConfiguration configuration, EmailService emailService)
-        {
+		{
 			this.configuration = configuration;
 			this.emailService = emailService;
 
@@ -37,7 +37,7 @@ namespace Mango.Services.EmailAPI.Messaging
 
 
 		}
-        protected override Task ExecuteAsync(CancellationToken stoppingToken)
+		protected override Task ExecuteAsync(CancellationToken stoppingToken)
 		{
 
 			stoppingToken.ThrowIfCancellationRequested();
@@ -48,7 +48,7 @@ namespace Mango.Services.EmailAPI.Messaging
 				var content = Encoding.UTF8.GetString(eventArgs.Body.ToArray()); // it is email is string
 
 				CartDto cartDto = JsonConvert.DeserializeObject<CartDto>(content);
-				 HandleMessage(cartDto).GetAwaiter().GetResult();
+				HandleMessage(cartDto).GetAwaiter().GetResult();
 
 				//message weas received and consumed we have to notify about it
 				channel.BasicAck(eventArgs.DeliveryTag, false);

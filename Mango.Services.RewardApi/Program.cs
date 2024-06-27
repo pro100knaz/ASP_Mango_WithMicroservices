@@ -1,8 +1,8 @@
-using Microsoft.EntityFrameworkCore;
 using Mango.Services.RewardApi.Data;
-using Mango.Services.RewardApi.Services;
-using Mango.Services.RewardApi.Messaging;
 using Mango.Services.RewardApi.Extensions;
+using Mango.Services.RewardApi.Messaging;
+using Mango.Services.RewardApi.Services;
+using Microsoft.EntityFrameworkCore;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -24,7 +24,7 @@ builder.Services.AddSingleton(new RewardService(optionBuilder.Options));
 
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+	options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 
 
@@ -55,13 +55,13 @@ app.Run();
 
 void ApplyMigration()
 {
-    using (var scope = app.Services.CreateScope())
-    {
-        var _db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-        if (_db.Database.GetPendingMigrations().Count() > 0) // 
-        {
-            _db.Database.Migrate();
-        }
-    }
+	using (var scope = app.Services.CreateScope())
+	{
+		var _db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+		if (_db.Database.GetPendingMigrations().Count() > 0) // 
+		{
+			_db.Database.Migrate();
+		}
+	}
 }
 

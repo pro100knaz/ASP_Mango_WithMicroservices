@@ -30,7 +30,7 @@ namespace Mango.Web.Services
 				ApiType = SD.ApiType.POST,
 				Data = cartDto,
 				Url = SD.ShoppingCartApiBase + "/api/cart/EmailCartRequest"
-            });
+			});
 		}
 
 		public async Task<ResponseDto?> GetCartByUserIdAsnyc(string userId)

@@ -1,10 +1,8 @@
-using Mango.MessageBus;
 using Mango.Services.AuthAPI.Data;
 using Mango.Services.AuthAPI.Models;
 using Mango.Services.AuthAPI.RabbitMqSender;
 using Mango.Services.AuthAPI.Services;
 using Mango.Services.AuthAPI.Services.IService;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -20,7 +18,7 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+	options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 
 builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
@@ -41,12 +39,12 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 //if (app.Environment.IsDevelopment())
 //{
-    app.UseSwagger();
-    app.UseSwaggerUI(c =>
-    {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "AUTH API");
-        c.RoutePrefix = string.Empty;
-    });
+app.UseSwagger();
+app.UseSwaggerUI(c =>
+{
+	c.SwaggerEndpoint("/swagger/v1/swagger.json", "AUTH API");
+	c.RoutePrefix = string.Empty;
+});
 //}
 
 app.UseHttpsRedirection();
@@ -62,12 +60,12 @@ app.Run();
 
 void ApplyMigration()
 {
-    using (var scope = app.Services.CreateScope())
-    {
-        var _db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-        if (_db.Database.GetPendingMigrations().Count() > 0) // 
-        {
-            _db.Database.Migrate();
-        }
-    }
+	using (var scope = app.Services.CreateScope())
+	{
+		var _db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+		if (_db.Database.GetPendingMigrations().Count() > 0) // 
+		{
+			_db.Database.Migrate();
+		}
+	}
 }

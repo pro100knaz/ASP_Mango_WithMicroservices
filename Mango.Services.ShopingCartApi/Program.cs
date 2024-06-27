@@ -20,10 +20,10 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
 
-builder.Services.AddHttpClient("Product", u=> u.BaseAddress 
+builder.Services.AddHttpClient("Product", u => u.BaseAddress
 = new Uri(builder.Configuration["ServiceUrls:ProductApi"])).AddHttpMessageHandler<BackendApiAuthHttpClientHAndler>(); // to передать token for authentification
 
-builder.Services.AddHttpClient("Coupon", u=> u.BaseAddress 
+builder.Services.AddHttpClient("Coupon", u => u.BaseAddress
 = new Uri(builder.Configuration["ServiceUrls:CouponApi"])).AddHttpMessageHandler<BackendApiAuthHttpClientHAndler>();
 
 builder.Services.AddScoped<IProductService, ProductService>();

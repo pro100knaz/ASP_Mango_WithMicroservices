@@ -1,8 +1,7 @@
-using Microsoft.EntityFrameworkCore;
 using Mango.Services.EmailAPI.Data;
 using Mango.Services.EmailAPI.Messaging;
-using Mango.Services.EmailAPI;
 using Mango.Services.EmailAPI.Services;
+using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -28,7 +27,7 @@ builder.Services.AddHostedService<RabbitMqOrderConsumer>();//will automatically 
 
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+	options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 
 //builder.Services.AddSingleton<IAzureServiceBusConsumer, AzureServiceBusConsumer>();
@@ -60,12 +59,12 @@ app.Run();
 
 void ApplyMigration()
 {
-    using (var scope = app.Services.CreateScope())
-    {
-        var _db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-        if (_db.Database.GetPendingMigrations().Count() > 0) // 
-        {
-            _db.Database.Migrate();
-        }
-    }
+	using (var scope = app.Services.CreateScope())
+	{
+		var _db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+		if (_db.Database.GetPendingMigrations().Count() > 0) // 
+		{
+			_db.Database.Migrate();
+		}
+	}
 }

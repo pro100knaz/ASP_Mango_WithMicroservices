@@ -34,29 +34,29 @@ builder.Services.AddScoped<IRabbitMqOrderMessageSender, RabbitMqOrderMessageSend
 
 builder.Services.AddSwaggerGen(options =>
 {
-    options.AddSecurityDefinition(name: JwtBearerDefaults.AuthenticationScheme, securityScheme: new OpenApiSecurityScheme()
-    {
-        Name = "Authorization",
-        Description = "Enter the Beare Authorization string as following:  'Bearer GEnerated-JWT-Token'",
-        In = ParameterLocation.Header,
-        Type = SecuritySchemeType.ApiKey,
-        Scheme = "Bearer"
-    }); // default vaalue to set authentification for swagger
+	options.AddSecurityDefinition(name: JwtBearerDefaults.AuthenticationScheme, securityScheme: new OpenApiSecurityScheme()
+	{
+		Name = "Authorization",
+		Description = "Enter the Beare Authorization string as following:  'Bearer GEnerated-JWT-Token'",
+		In = ParameterLocation.Header,
+		Type = SecuritySchemeType.ApiKey,
+		Scheme = "Bearer"
+	}); // default vaalue to set authentification for swagger
 
-    options.AddSecurityRequirement(new OpenApiSecurityRequirement()
-    {
-        {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference
-                {
-                    Type = ReferenceType.SecurityScheme,
-                    Id= JwtBearerDefaults.AuthenticationScheme
-                }
-            },
-            new string[]{}
-        }
-    });
+	options.AddSecurityRequirement(new OpenApiSecurityRequirement()
+	{
+		{
+			new OpenApiSecurityScheme
+			{
+				Reference = new OpenApiReference
+				{
+					Type = ReferenceType.SecurityScheme,
+					Id= JwtBearerDefaults.AuthenticationScheme
+				}
+			},
+			new string[]{}
+		}
+	});
 });
 
 
@@ -68,7 +68,7 @@ builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+	options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 
 

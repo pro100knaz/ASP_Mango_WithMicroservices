@@ -1,15 +1,11 @@
 ﻿using Mango.Web.Models;
 using Mango.Web.Models.DTO;
 using Mango.Web.Services.IService;
-using System.Collections;
-using System.Net.Mime;
-using System.Text;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-using Newtonsoft.Json;
-using static Mango.Web.Utility.SD;
-using System.Net;
 using Mango.Web.Utility;
+using Newtonsoft.Json;
+using System.Net;
+using System.Text;
+using static Mango.Web.Utility.SD;
 namespace Mango.Web.Services
 {
 	public class BaseService : IBaseService

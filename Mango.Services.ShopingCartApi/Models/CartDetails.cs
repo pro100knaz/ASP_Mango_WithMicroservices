@@ -1,6 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using Mango.Services.ShopingCartApi.Models.DTO;
 using System.ComponentModel.DataAnnotations;
-using Mango.Services.ShopingCartApi.Models.DTO;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Mango.Services.ShopingCartApi.Models
 {

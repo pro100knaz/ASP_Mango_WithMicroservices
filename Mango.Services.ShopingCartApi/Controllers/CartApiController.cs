@@ -1,16 +1,11 @@
 ﻿using AutoMapper;
-using Azure;
-using Mango.MessageBus;
 using Mango.Services.ShopingCartApi.Data;
 using Mango.Services.ShopingCartApi.Models;
 using Mango.Services.ShopingCartApi.Models.DTO;
 using Mango.Services.ShopingCartApi.RabbitMqSender;
 using Mango.Services.ShopingCartApi.Services.IService;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Reflection.PortableExecutable;
 
 namespace Mango.Services.ShopingCartApi.Controllers
 {
@@ -27,9 +22,9 @@ namespace Mango.Services.ShopingCartApi.Controllers
 		private readonly IConfiguration configuration;
 		private ResponseDto _responseDto;
 
-		public CartApiController(AppDbContext appDbContext, IMapper mapper, 
+		public CartApiController(AppDbContext appDbContext, IMapper mapper,
 			IProductService productService, ICouponService couponService,
-			IRabbitMqCartMessageSender messageBus,IConfiguration configuration )
+			IRabbitMqCartMessageSender messageBus, IConfiguration configuration)
 		{
 			this.appDbContext = appDbContext;
 			this.mapper = mapper;
@@ -106,17 +101,28 @@ namespace Mango.Services.ShopingCartApi.Controllers
 				IEnumerable<ProductDto> productDtos = await productService.GetProducts();
 
 
+
 				foreach (var item in cartDto.CartDetails)
 				{
-					item.Product = productDtos.FirstOrDefault(u => u.ProductId == item.ProductId);
-					cartDto.CartHeader.CartTotal += (item.Count * item.Product.Price);
+
+
+					try
+					{
+						var productX = productDtos.First(u => u.ProductId == item.ProductId);
+						item.Product = productX;
+						cartDto.CartHeader.CartTotal += (item.Count * item.Product.Price);
+					}
+					catch (Exception ex)
+					{
+						await CartRemove(item.CartDetailsId);
+					}
 				}
 
 				//apply coupon if any
 				if (!string.IsNullOrEmpty(cartDto.CartHeader.CouponCode))
 				{
 					CouponDto coupon = await couponService.GetCoupon(cartDto.CartHeader.CouponCode);
-					if(coupon is not null && cartDto.CartHeader.CartTotal > coupon.MinAmount)
+					if (coupon is not null && cartDto.CartHeader.CartTotal > coupon.MinAmount)
 					{
 						cartDto.CartHeader.CartTotal -= coupon.DiscountAmount;
 						cartDto.CartHeader.Discount = coupon.DiscountAmount;
@@ -140,7 +146,7 @@ namespace Mango.Services.ShopingCartApi.Controllers
 		{
 			try
 			{
-				
+
 				CartDetails cartDetails = appDbContext.CartDetails
 					.First(u => u.CartDetailsId == cartDetailsId);
 
@@ -150,7 +156,7 @@ namespace Mango.Services.ShopingCartApi.Controllers
 
 				appDbContext.CartDetails.Remove(cartDetails);
 
-				if(totalCountofCartItem == 1)
+				if (totalCountofCartItem == 1)
 				{
 					var cartHeaderFromDbToRemove = await appDbContext.CartHeaders.AsNoTracking()
 						.FirstOrDefaultAsync(u => u.CartHeaderId == cartDetails.CartHeaderId);
@@ -170,21 +176,21 @@ namespace Mango.Services.ShopingCartApi.Controllers
 			return _responseDto;
 		}
 
-		 
+
 		[HttpPost("CartUpsert")]
 		public async Task<ResponseDto> CartUpsert([FromBody] CartDto cartDto)
 		{
 			try
 			{
 				var cartHeaderDromDb = await appDbContext.CartHeaders.AsNoTracking().FirstOrDefaultAsync(u => u.UserId == cartDto.CartHeader.UserId);
-				if(cartHeaderDromDb is null)
+				if (cartHeaderDromDb is null)
 				{
 					//create CartHeader and Insert Details
 
 					CartHeader cartHeader = mapper.Map<CartHeader>(cartDto.CartHeader);
 					appDbContext.CartHeaders.Add(cartHeader);
 
-					 await appDbContext.SaveChangesAsync();
+					await appDbContext.SaveChangesAsync();
 
 					cartDto.CartDetails.First().CartHeaderId = cartHeader.CartHeaderId;
 					appDbContext.CartDetails.Add(mapper.Map<CartDetails>(cartDto.CartDetails.First()));
@@ -196,9 +202,9 @@ namespace Mango.Services.ShopingCartApi.Controllers
 					//if header is not null
 					//check if details has same product
 					var cartDetailsFromDb = await appDbContext.CartDetails.AsNoTracking().FirstOrDefaultAsync(
-						u => u.ProductId == cartDto.CartDetails.First().ProductId && 
+						u => u.ProductId == cartDto.CartDetails.First().ProductId &&
 						u.CartHeaderId == cartHeaderDromDb.CartHeaderId);
-					if(cartDetailsFromDb is null)
+					if (cartDetailsFromDb is null)
 					{
 						//create cartDetails
 						cartDto.CartDetails.First().CartHeaderId = cartHeaderDromDb.CartHeaderId;

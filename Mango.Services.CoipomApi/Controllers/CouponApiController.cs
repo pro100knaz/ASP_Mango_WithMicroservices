@@ -3,9 +3,7 @@ using Mango.Services.CouponApi.Data;
 using Mango.Services.CouponApi.Models;
 using Mango.Services.CouponApi.Models.DTO;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace Mango.Services.CouponApi.Controllers
 {
@@ -17,16 +15,17 @@ namespace Mango.Services.CouponApi.Controllers
 		private readonly IMapper mapper;
 		private readonly AppDbContext appDbContext;
 		private ResponseDto ResponseDto;
-		public CouponApiController(IMapper mapper ,AppDbContext appDbContext)
-        {
+		public CouponApiController(IMapper mapper, AppDbContext appDbContext)
+		{
 			this.mapper = mapper;
 			this.appDbContext = appDbContext;
 			ResponseDto = new ResponseDto();
 		}
 
-		
+
 		[HttpGet]
-		public ResponseDto Get() {
+		public ResponseDto Get()
+		{
 
 			try
 			{
@@ -36,12 +35,12 @@ namespace Mango.Services.CouponApi.Controllers
 			catch (Exception ex)
 			{
 				ResponseDto.Message = ex.Message;
-				ResponseDto.IsSuccess = false; 
+				ResponseDto.IsSuccess = false;
 				//throw;
 			}
 
 			return ResponseDto;
-			
+
 		}
 
 		[HttpGet]
@@ -49,9 +48,9 @@ namespace Mango.Services.CouponApi.Controllers
 		public ResponseDto Get(int id)
 		{
 			try
-			{		
+			{
 				Coupon coupon = appDbContext.Coupons.First(c => c.CouponId == id); //can use FirstOrDefault cause it doesn't trow an exception
-				
+
 				ResponseDto.Result = mapper.Map<CouponDto>(coupon);
 			}
 			catch (Exception ex)
@@ -74,7 +73,7 @@ namespace Mango.Services.CouponApi.Controllers
 			try
 			{
 				Coupon? coupon = appDbContext.Coupons.FirstOrDefault(c => c.CouponCode.ToLower() == code.ToLower());
-				if(code == null)
+				if (code == null)
 					ResponseDto.Result = false;
 				ResponseDto.Result = mapper.Map<CouponDto>(coupon);
 			}
@@ -103,20 +102,20 @@ namespace Mango.Services.CouponApi.Controllers
 
 
 
-              //  StripeConfiguration.ApiKey = "sk_test_51PSN69LEP3gCXvfKc4CVOqRFyGbHKBZBGrHXxvZtTzUGAUaN730zeP9ck7VMmsKxuYiQviHtLX2bTgurqpQSGbSO00DgRWbTbO";
-                var options = new Stripe.CouponCreateOptions
-                {
+				//  StripeConfiguration.ApiKey = "sk_test_51PSN69LEP3gCXvfKc4CVOqRFyGbHKBZBGrHXxvZtTzUGAUaN730zeP9ck7VMmsKxuYiQviHtLX2bTgurqpQSGbSO00DgRWbTbO";
+				var options = new Stripe.CouponCreateOptions
+				{
 					AmountOff = (long)(coupon.DiscountAmount * 100),
 					Name = couponDto.CouponCode,
 					Currency = "usd",
-                    Id = couponDto.CouponCode
-                };
-                var service = new Stripe.CouponService();
-                service.Create(options);
+					Id = couponDto.CouponCode
+				};
+				var service = new Stripe.CouponService();
+				service.Create(options);
 
 
 
-                ResponseDto.Result = mapper.Map<CouponDto>(coupon);
+				ResponseDto.Result = mapper.Map<CouponDto>(coupon);
 			}
 			catch (Exception ex)
 			{
@@ -167,14 +166,14 @@ namespace Mango.Services.CouponApi.Controllers
 				appDbContext.SaveChanges();
 
 
-                //  StripeConfiguration.ApiKey = "sk_test_51PSN69LEP3gCXvfKc4CVOqRFyGbHKBZBGrHXxvZtTzUGAUaN730zeP9ck7VMmsKxuYiQviHtLX2bTgurqpQSGbSO00DgRWbTbO";
-            
-                var service = new Stripe.CouponService();
-                service.Delete(coupon.CouponCode);
+				//  StripeConfiguration.ApiKey = "sk_test_51PSN69LEP3gCXvfKc4CVOqRFyGbHKBZBGrHXxvZtTzUGAUaN730zeP9ck7VMmsKxuYiQviHtLX2bTgurqpQSGbSO00DgRWbTbO";
+
+				var service = new Stripe.CouponService();
+				service.Delete(coupon.CouponCode);
 
 
 
-            }
+			}
 			catch (Exception ex)
 			{
 				ResponseDto.Message = ex.Message;

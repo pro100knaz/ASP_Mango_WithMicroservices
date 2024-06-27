@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Mango.Services.ProductApi.Extensions
 {
-	public  static class WebApplicationBuilderExtensions
+	public static class WebApplicationBuilderExtensions
 	{
 		public static WebApplicationBuilder AddAppAuthentication(this WebApplicationBuilder builder)
 		{

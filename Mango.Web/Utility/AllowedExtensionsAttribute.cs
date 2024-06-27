@@ -2,28 +2,28 @@
 
 namespace Mango.Web.Utility
 {
-    public class AllowedExtensionsAttribute : ValidationAttribute
-    {
-        private readonly string[] extensions;
+	public class AllowedExtensionsAttribute : ValidationAttribute
+	{
+		private readonly string[] extensions;
 
-        public AllowedExtensionsAttribute(string[] extensions)
-        {
-            this.extensions = extensions;
-        }
-        protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
-        {            
-            var file = value as IFormFile;
+		public AllowedExtensionsAttribute(string[] extensions)
+		{
+			this.extensions = extensions;
+		}
+		protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
+		{
+			var file = value as IFormFile;
 
-            if (file != null)
-            {
-                var extension = Path.GetExtension(file.FileName);
-                if(!extension.Contains(extension.ToLower()))
-                {
-                    return new ValidationResult("This aphoto extension is not allowed");
-                }
-            }
+			if (file != null)
+			{
+				var extension = Path.GetExtension(file.FileName);
+				if (!extension.Contains(extension.ToLower()))
+				{
+					return new ValidationResult("This aphoto extension is not allowed");
+				}
+			}
 
-            return ValidationResult.Success;
-        }
-    }
+			return ValidationResult.Success;
+		}
+	}
 }

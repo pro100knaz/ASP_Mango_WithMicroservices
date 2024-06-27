@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Diagnostics;
-using System.IdentityModel.Tokens.Jwt;
 
 namespace Mango.Web.Controllers
 {
@@ -82,12 +81,12 @@ namespace Mango.Web.Controllers
 			};
 
 			CartDetailsDto cartDetails = new()
-			{ 
+			{
 				Count = productDto.Count,
 				ProductId = productDto.ProductId,
 			};
 
-			List<CartDetailsDto> cartDetailsDtos = new List<CartDetailsDto>() 
+			List<CartDetailsDto> cartDetailsDtos = new List<CartDetailsDto>()
 			{
 				cartDetails
 			};
